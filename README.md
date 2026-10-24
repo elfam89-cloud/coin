@@ -17,6 +17,7 @@
 | [`results/compare_pure.md`](results/compare_pure.md) | 나눠서 보관 vs 순수 봇 비교 (같은 생활비 기준) |
 | [`results/div_only.md`](results/div_only.md) | 팔지 않고 배당만 생활비로 쓰면 (9년 계산) |
 | [`results/future_plan.md`](results/future_plan.md) | 미래 재테크 계획: 시드 100만원 + 매달 10만원 → 봇 · 비트코인 · 배당주 (9년 계산) |
+| [`results/halving_cycles.md`](results/halving_cycles.md) | (참고) 반감기 전후 비트코인 가격 |
 | [`results/summary.md`](results/summary.md) | 1단계 실험 결과 요약표 |
 
 ## 폴더 구조
@@ -41,6 +42,7 @@ research/               1단계: 과거 데이터로 전략 검증하는 코드
   compare_pure.py       나눠서 보관 vs 순수 봇 비교 → results/compare_pure.md
   div_only_check.py     팔지 않고 배당만 생활비로 쓰기 → results/div_only.md
   future_plan.py        시드 + 매달 적립을 봇 · 비트코인 · 배당주로 나누기 → results/future_plan.md
+  halving_check.py      (참고) 반감기 전후 비트코인 가격 → results/halving_cycles.md
   test_engine.py        계산기가 맞게 동작하는지 확인하는 테스트
 results/                실험 결과 (요약표, 원자료 JSON)
   report/               리포트 페이지(index.html)와 그래프용 데이터
