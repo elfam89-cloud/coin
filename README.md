@@ -15,6 +15,7 @@
 | [`results/us_dividend.md`](results/us_dividend.md) | (번외) 미국 배당주 '단타 + 배당락 전날 풀매수' 아이디어 점검 |
 | [`results/split_plan.md`](results/split_plan.md) | 봇이 꺼낸 돈을 생활비 · 배당주 · 비트코인으로 나누면 (9년 계산) |
 | [`results/compare_pure.md`](results/compare_pure.md) | 나눠서 보관 vs 순수 봇 비교 (같은 생활비 기준) |
+| [`results/div_only.md`](results/div_only.md) | 팔지 않고 배당만 생활비로 쓰면 (9년 계산) |
 | [`results/summary.md`](results/summary.md) | 1단계 실험 결과 요약표 |
 
 ## 폴더 구조
@@ -37,6 +38,7 @@ research/               1단계: 과거 데이터로 전략 검증하는 코드
   us_dividend_check.py  (번외) 미국 배당주 아이디어 점검 → results/us_dividend.md
   split_check.py        봇이 꺼낸 돈 나누기 (생활비·배당주·비트코인) → results/split_plan.md
   compare_pure.py       나눠서 보관 vs 순수 봇 비교 → results/compare_pure.md
+  div_only_check.py     팔지 않고 배당만 생활비로 쓰기 → results/div_only.md
   test_engine.py        계산기가 맞게 동작하는지 확인하는 테스트
 results/                실험 결과 (요약표, 원자료 JSON)
   report/               리포트 페이지(index.html)와 그래프용 데이터
