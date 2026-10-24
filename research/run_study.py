@@ -255,6 +255,21 @@ def main():
             per_coin[mk] = trade_stats(COSTS["upbit"].net(pe[sel], px[sel]))
         d["oos_exit_kinds"] = kinds
         d["oos_per_coin"] = per_coin
+        # 위험 지표: 가장 큰 손실 거래, 최장 연속 손실 (검증 기간, 주력 4코인, 업비트 비용)
+        worst, streak = 0.0, 0
+        for mk in MAIN:
+            e, x, pe, px, t = trades[mk][key]
+            lo, hi = pidx[mk]["oos"]
+            sel = (e >= lo) & (e < hi)
+            r = COSTS["upbit"].net(pe[sel], px[sel])
+            if len(r):
+                worst = min(worst, float(r.min()))
+            run = 0
+            for v in r:
+                run = run + 1 if v <= 0 else 0
+                streak = max(streak, run)
+        d["oos_worst_trade"] = worst
+        d["oos_max_loss_streak"] = streak
         for p in PERIODS:  # 비용 0 가정(참고용): 수수료가 결과를 얼마나 바꾸는지 보기 위해
             r0, _ = pooled(trades, MAIN, key, p, pidx, "zero")
             d[f"{p}_zero_main"] = trade_stats(r0)
@@ -351,6 +366,13 @@ def main():
                     best, best_mean = c, float(r.mean())
             step = {"start": s0.strftime("%Y-%m"), "end": min(s1, ref.ts[-1]).strftime("%Y-%m-%d"),
                     "pick": best.label() if best else None, "train_expectancy": best_mean}
+            hold_r = []  # 같은 3개월 동안 4코인을 그냥 들고 있었다면
+            for mk in MAIN:
+                m = mk_obj[mk]
+                a, b = idx(mk, s0), min(idx(mk, s1), m.n) - 1
+                if b > a:
+                    hold_r.append(m.c[b] / m.o[a] - 1)
+            step["hold_return"] = float(np.mean(hold_r)) if hold_r else 0.0
             if best is None or best_mean <= 0:
                 step.update({"traded": False, "return": 0.0, "n": 0})
             else:
@@ -363,7 +385,8 @@ def main():
                              "return": float(np.mean([np.prod(1 + v) - 1 for v in per.values()]))})
             steps.append(step)
         total = float(np.prod([1 + s["return"] for s in steps]) - 1)
-        walk[cost] = {"steps": steps, "total_return": total}
+        hold_total = float(np.prod([1 + s["hold_return"] for s in steps]) - 1)
+        walk[cost] = {"steps": steps, "total_return": total, "hold_total_return": hold_total}
 
     # 8) 손절·익절 조합별 성적표(히트맵용): 후보가 속한 전략군(같은 신호)만
     heat = {}

@@ -22,7 +22,8 @@ def verdict(row, d, cost):
     checks = {
         "기대값+": (o.get("expectancy") or -1) > 0,
         "거래수": o.get("n", 0) >= GATE["min_oos_trades"],
-        "무작위대비": cost != "upbit" or (d["random_oos"]["p_value"] is not None and d["random_oos"]["p_value"] < GATE["max_p"]),
+        # p값은 전략과 무작위 진입에 같은 비용이 빠지므로 비용 가정과 무관 → 두 조건 모두 적용
+        "무작위대비": d["random_oos"]["p_value"] is not None and d["random_oos"]["p_value"] < GATE["max_p"],
         "낙폭": d[f"port_oos_{cost}"]["mdd"] >= GATE["max_mdd"],
         "새코인": (x.get("expectancy") or -1) > 0,
     }
@@ -66,6 +67,7 @@ def main():
             "extra_oos_n": r["oos_upbit_extra"].get("n", 0), "extra_oos_exp": r["oos_upbit_extra"].get("expectancy"),
             "extra_oos_exp_free": r["oos_free_api_extra"].get("expectancy"),
             "verdict_upbit": v_up, "fail_upbit": why_up, "verdict_free": v_fr, "fail_free": why_fr,
+            "oos_worst": d["oos_worst_trade"], "oos_loss_streak": d["oos_max_loss_streak"],
         })
 
     random_grid = [{"sl": g["sl"], "tp": g["tp"], "label": f"손절 -{g['sl'] * 100:g}% / 익절 +{g['tp'] * 100:g}%",
@@ -88,7 +90,7 @@ def main():
         for s in w["steps"]:
             walk.append({"cost": cost, "start": s["start"], "end": s["end"], "pick": s["pick"] or "-",
                          "traded": s["traded"], "n": s.get("n", 0), "wr": s.get("win_rate"),
-                         "ret": s["return"], "train_exp": s["train_expectancy"]})
+                         "ret": s["return"], "hold_ret": s["hold_return"], "train_exp": s["train_expectancy"]})
 
     wr = [{"cost": c, "total": w["configs_total"], "wr60": w["is_wr60"], "wr60_prof": w["is_wr60_profitable"],
            "wr60_prof_oos": w["is_wr60_profitable_and_oos_profitable"]} for c, w in res["winrate_check"].items()]
@@ -130,6 +132,8 @@ def main():
         "n_pass_free": sum(c["verdict_free"] == "통과" for c in cand),
         "wf_total_upbit": res["walk_forward"]["upbit"]["total_return"],
         "wf_total_free": res["walk_forward"]["free_api"]["total_return"],
+        "wf_hold_total": res["walk_forward"]["upbit"]["hold_total_return"],
+        "wf_start": res["walk_forward"]["upbit"]["steps"][0]["start"],
         "generated": res["generated"],
     }]
 

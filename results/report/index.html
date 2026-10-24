@@ -22,6 +22,7 @@
   .cr-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
   .cr-chart .cr-strong { fill: var(--color-fg); }
   .cr-tip { position: absolute; z-index: 2; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; max-width: 18rem; display: flex; flex-direction: column; gap: 2px; }
+  .cr-tip[hidden] { display: none; }
   .cr-tip .cr-tip-h { color: var(--cds-text-secondary); }
   .cr-tip .cr-row { display: flex; gap: var(--cds-gap-xs); align-items: center; }
   .cr-sw { width: 0.6rem; height: 0.6rem; border-radius: 2px; flex: none; }
@@ -50,7 +51,7 @@
 <div class="cr">
   <header class="cr-head" id="top">
     <h1>코인 단타 검증 리포트</h1>
-    <p class="cr-take cr-verdict" id="verdict">—</p>
+    <p class="cr-take cr-verdict" id="verdict" data-source="overview candidates">—</p>
     <p class="cr-take">
       과거 차트로 단타 규칙 <b data-source="overview" data-field="n_configs" data-row="0">—</b>가지를 시험했고,
       학습 기간에 고른 후보 <b data-source="overview" data-field="n_candidates" data-row="0">—</b>개를 처음 보는 기간에 적용했습니다.
@@ -81,7 +82,12 @@
       <span class="cr-sub">같은 방식, 슬리피지만 적용</span>
     </div>
     <div class="cr-tile">
-      <span class="cr-lbl">같은 검증 기간 단순 보유</span>
+      <span class="cr-lbl">워크포워드 기간 단순 보유</span>
+      <span class="cr-num" data-source="overview" data-field="wf_hold_total" data-row="0">—</span>
+      <span class="cr-sub"><span data-source="overview" data-field="wf_start" data-row="0">—</span>부터 4코인을 그냥 들고 있었다면</span>
+    </div>
+    <div class="cr-tile">
+      <span class="cr-lbl">검증 기간 단순 보유</span>
       <span class="cr-num" data-source="buy_hold" data-field="ret" data-where="period=oos">—</span>
       <span class="cr-sub">주력 4코인을 사서 그냥 둔 경우</span>
     </div>
@@ -111,7 +117,7 @@
     </ul>
     <div class="cr-card" id="market">
       <h3>시장 상황: 코인별 단순 보유 수익률</h3>
-      <p class="cr-note">현물은 오를 때만 벌 수 있습니다. 시장이 내린 기간에는 어떤 단타 규칙도 불리합니다.</p>
+      <p class="cr-note">학습 기간은 큰 상승장, 검증 기간은 큰 하락장이었습니다. 현물은 오를 때만 벌 수 있어서 하락장에서는 어떤 단타 규칙도 불리합니다. 두 기간은 눈금이 다릅니다.</p>
       <div class="cr-chart cr-short dash-skeleton" id="chart-market" data-source="buy_hold_coin"></div>
       <div class="cr-legend" id="legend-market"></div>
     </div>
@@ -177,7 +183,7 @@
     <h2>계좌가 실제로 어떻게 움직였을까</h2>
     <div class="cr-card">
       <h3>계좌 가치 (시작 = 1.0, 업비트 비용)</h3>
-      <p class="cr-note">주력 4코인에 25%씩 나눠 각 후보 규칙대로 매매한 경우와, 그냥 사서 둔 경우입니다. 점선 오른쪽이 검증 기간입니다.</p>
+      <p class="cr-note">주력 4코인에 25%씩 나눠 각 후보 규칙대로 매매한 경우와, 그냥 사서 둔 경우입니다. 세로축은 시작 금액의 몇 배인지이고, 칸 간격이 같으면 같은 비율로 늘어난 것입니다. 세로 점선 오른쪽이 검증 기간입니다.</p>
       <div class="cr-legend" id="legend-curves"></div>
       <div class="cr-chart dash-skeleton" id="chart-curves" data-source="curves overview candidates"></div>
     </div>
@@ -194,7 +200,7 @@
       </div>
       <div class="cr-card">
         <h3>워크포워드: 분기별 수익</h3>
-        <p class="cr-note">매 분기 직전 12개월 1등 설정을 골라 다음 3개월에 적용했습니다. 직전 1등도 손해였으면 그 분기는 쉬었습니다.</p>
+        <p class="cr-note">매 분기 직전 12개월 1등 설정을 골라 다음 3개월에 적용했습니다. 회색 막대는 같은 분기에 4코인을 그냥 들고 있었을 때입니다.</p>
         <div class="cr-legend" id="legend-walk"></div>
         <div class="cr-chart dash-skeleton" id="chart-walk" data-source="walk_forward"></div>
       </div>
@@ -219,7 +225,7 @@
 
   <section class="cr-section" id="heat">
     <h2>과최적화를 눈으로 보기</h2>
-    <p id="heat-title">—</p>
+    <p id="heat-title" data-source="heat">—</p>
     <div class="cr-grid">
       <div class="cr-card">
         <h3>학습 기간 기대값</h3>
@@ -236,7 +242,8 @@
 
   <section class="cr-section" id="next">
     <h2>다음 단계</h2>
-    <ul class="cr-steps" id="next-steps"><li>—</li></ul>
+    <p data-source="candidates buy_hold" id="promising">—</p>
+    <ul class="cr-steps" id="next-steps" data-source="overview"><li>—</li></ul>
   </section>
 </div>
 
@@ -245,7 +252,7 @@
   const loc = d3.formatLocale({ decimal: '.', thousands: ',', grouping: [3], currency: ['', ''], minus: '-' });
   const f = {
     int: loc.format(','), pct1: loc.format('.1%'), pct0: loc.format('.0%'), spct1: loc.format('+.1%'),
-    spct2: loc.format('+.2%'), p2: loc.format('.2f'), x2: loc.format('.2f'), fee: loc.format('.2%'),
+    spct2: loc.format('+.2%'), p3: loc.format('.3f'), x2: loc.format('.2f'), fee: loc.format('.2%'),
   };
   const na = (v) => v === null || v === undefined || Number.isNaN(v);
   const show = (fmt) => (v) => (na(v) ? '—' : fmt(v));
@@ -339,28 +346,40 @@
     if (ov.status !== 'ok' || !ov.data.length) { v.textContent = '—'; return; }
     const o = ov.data[0];
     const up = Number(o.n_pass_upbit), fr = Number(o.n_pass_free);
+    const cdAll = dash.data('candidates').status === 'ok' ? dash.data('candidates').data : [];
     v.textContent = up > 0
       ? '업비트 수수료로도 통과한 규칙이 있습니다. 다음 단계(모의 자동매매)로 갈 후보가 생겼습니다.'
       : fr > 0
         ? '업비트 수수료로는 통과한 규칙이 없고, 수수료 무료 거래소 조건에서만 통과한 규칙이 있습니다.'
-        : '지금 시험한 단타 규칙은 수수료를 빼면 처음 보는 기간에서 돈을 벌지 못했습니다. 이대로 실전 자동매매를 시작하면 안 됩니다.';
+        : '시험한 단타 규칙 중 처음 보는 기간의 통과 기준을 넘은 것은 없습니다.'
+          + (cdAll.length && cdAll.every((r) => Number(r.oos_exp) <= 0) ? ' 업비트 수수료를 빼면 후보 모두 손해였습니다.' : '')
+          + ' 이대로 실전 자동매매를 시작하면 안 됩니다.';
     const steps = up > 0
       ? ['통과한 규칙으로 모의 자동매매 봇을 만들어 4주 이상 실시간 시세로 시험합니다.',
          '모의 결과가 검증 기간 성적과 비슷한지 매주 비교합니다.',
          '텔레그램 봇과 고정 IP 서버를 준비합니다.']
-      : fr > 0
-        ? ['수수료 무료 거래소(빗썸·코인원 등)의 조건과 기간을 확인하고, 그 거래소 기준으로 다시 검증합니다.',
-           '업비트를 유지한다면 보유 시간이 더 긴 규칙(하루~며칠)으로 범위를 넓혀 다시 시험합니다.',
-           '통과한 규칙이 생기기 전까지는 신호 알림만 받으며 관찰합니다.']
-        : ['보유 시간이 더 긴 규칙(하루~며칠)과 시장 하락 시 쉬는 규칙으로 범위를 넓혀 다시 시험합니다.',
-           '수수료 무료 거래소 조건을 확인하고 그 조건으로도 다시 계산합니다.',
-           '통과한 규칙이 생기기 전까지는 실전 주문 기능을 만들지 않습니다.'];
+      : ['유망 후보를 텔레그램 신호 알림과 모의 매매로 4주 이상 지켜봅니다. 실제 돈은 쓰지 않습니다. 이미 한 번 본 검증 기간이 아니라 앞으로의 데이터로 판단합니다.',
+         '수수료 무료 거래소(빗썸·코인원·코빗)의 API 조건과 기간을 확인합니다. 수수료가 없어지면 모든 규칙의 기대값이 그만큼 올라갑니다.',
+         '하락장에서는 쉬는 규칙과, 하루~며칠 들고 가는 규칙도 같은 방법으로 시험합니다.',
+         '모의 결과가 통과 기준을 넘기 전에는 실전 주문 기능을 만들지 않습니다.'];
     nx.replaceChildren(...steps.map((s) => { const li = document.createElement('li'); li.textContent = s; return li; }));
+    const pr = document.getElementById('promising');
+    const cd = dash.data('candidates');
+    if (cd.status === 'ok') {
+      // 유망 후보: 무작위보다 확실히 나았거나(p<0.05), 수수료 무료 조건과 새 코인 모두에서 플러스
+      const good = cd.data.filter((r) => (!na(r.p_oos) && Number(r.p_oos) < 0.05) || (Number(r.extra_oos_exp) > 0 && Number(r.oos_exp_free) > 0));
+      const bh = dash.data('buy_hold');
+      const hold = bh.status === 'ok' ? bh.data.find((r) => r.period === 'oos') : null;
+      const lessLoss = hold && good.length && good.every((r) => Number(r.oos_ret) > Number(hold.ret));
+      pr.textContent = good.length
+        ? `통과는 못 했지만 더 지켜볼 만한 후보: ${good.map((r) => r.short).join(', ')}.` + (lessLoss ? ' 모두 검증 기간에 단순 보유보다 훨씬 덜 잃었습니다.' : '')
+        : '더 지켜볼 만한 후보도 없습니다. 규칙의 종류부터 다시 고릅니다.';
+    } else pr.textContent = '—';
   }
 
   function fillMarks() {
     const fmt = { n_trades: f.int, n_configs: f.int, n_candidates: f.int, n_pass_upbit: f.int, n_pass_free: f.int, n_coins: f.int,
-                  wf_total_upbit: f.spct1, wf_total_free: f.spct1, fee_upbit: f.fee, slip: f.fee };
+                  wf_total_upbit: f.spct1, wf_total_free: f.spct1, wf_hold_total: f.spct1, fee_upbit: f.fee, slip: f.fee };
     const ov = dash.data('overview');
     document.querySelectorAll('[data-source="overview"][data-field]').forEach((el) => {
       if (ov.status !== 'ok' || !ov.data.length) { el.textContent = '—'; return; }
@@ -390,28 +409,32 @@
     const el = document.getElementById('chart-market');
     if (!state(el, ['buy_hold_coin'])) return;
     const rows = dash.data('buy_hold_coin').data.map((r) => ({ ...r, ret: Number(r.ret) }));
-    const coins = [...new Set(rows.map((r) => r.coin))];
-    const periods = ['is', 'oos'];
     const name = { is: '학습 기간', oos: '검증 기간' };
-    const col = { is: 'var(--cds-chart-muted)', oos: C()[0] };
-    legend(document.getElementById('legend-market'), periods.map((p) => ({ text: name[p], color: col[p] })));
+    const col = { is: 'var(--color-ok)', oos: 'var(--color-bad)' };
+    legend(document.getElementById('legend-market'), []);
     const { svg, w, h } = frame(el, 200);
-    const ext = d3.extent(rows, (r) => r.ret);
-    const y = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [h - 24, 10]).nice();
-    const labW = textWidth(svg, y.ticks(4).map(f.pct0));
-    const x0 = d3.scaleBand(coins, [labW + 12, w - 4]).padding(0.25);
-    const x1 = d3.scaleBand(periods, [0, x0.bandwidth()]).padding(0.12);
-    svg.append('g').attr('transform', `translate(${labW + 8},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(f.pct0).tickSize(-(w - labW - 12))).call(axisStyle).call((g) => g.select('.domain').remove());
-    svg.append('line').attr('x1', labW + 8).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)');
     const tip = tooltip(el);
-    svg.append('g').selectAll('rect').data(rows).join('rect')
-      .attr('x', (r) => x0(r.coin) + x1(r.period)).attr('width', x1.bandwidth())
-      .attr('y', (r) => Math.min(y(0), y(r.ret))).attr('height', (r) => Math.max(1, Math.abs(y(r.ret) - y(0))))
-      .attr('rx', 3).style('fill', (r) => col[r.period])
-      .on('mousemove', (ev, r) => tip.show(ev, r.coin, [{ text: `${name[r.period]}: ${f.spct1(r.ret)}`, color: col[r.period] }]))
-      .on('mouseleave', () => tip.hide());
-    svg.append('g').selectAll('text').data(coins).join('text').attr('x', (c) => x0(c) + x0.bandwidth() / 2).attr('y', h - 6)
-      .attr('text-anchor', 'middle').text((c) => c);
+    const panels = ['is', 'oos'];
+    const gap = 24, pw = (w - gap) / 2;
+    panels.forEach((p, i) => {
+      const pr = rows.filter((r) => r.period === p);
+      const x0 = i * (pw + gap);
+      const ext = d3.extent(pr, (r) => r.ret);
+      const y = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [h - 24, 22]).nice();
+      const labW = textWidth(svg, y.ticks(3).map(f.pct0));
+      const x = d3.scaleBand(pr.map((r) => r.coin), [x0 + labW + 10, x0 + pw]).padding(0.3);
+      svg.append('text').attr('x', x0).attr('y', 12).attr('class', 'cr-strong').text(name[p]);
+      svg.append('g').attr('transform', `translate(${x0 + labW + 6},0)`).call(d3.axisLeft(y).ticks(3).tickFormat(f.pct0).tickSize(-(pw - labW - 6))).call(axisStyle).call((g) => g.select('.domain').remove());
+      svg.append('line').attr('x1', x0 + labW + 6).attr('x2', x0 + pw).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)');
+      svg.append('g').selectAll('rect').data(pr).join('rect')
+        .attr('x', (r) => x(r.coin)).attr('width', x.bandwidth())
+        .attr('y', (r) => Math.min(y(0), y(r.ret))).attr('height', (r) => Math.max(1, Math.abs(y(r.ret) - y(0))))
+        .attr('rx', 3).style('fill', col[p]).attr('fill-opacity', 0.75)
+        .on('mousemove', (ev, r) => tip.show(ev, `${r.coin} · ${name[p]}`, [{ text: `그냥 들고 있었다면 ${f.spct1(r.ret)}` }]))
+        .on('mouseleave', () => tip.hide());
+      svg.append('g').selectAll('text').data(pr).join('text').attr('x', (r) => x(r.coin) + x.bandwidth() / 2).attr('y', h - 6)
+        .attr('text-anchor', 'middle').text((r) => r.coin);
+    });
   }
 
   // ---------- 승률 vs 기대값 ----------
@@ -484,7 +507,7 @@
         [f.int(Number(r.oos_n))], [show(f.pct1)(na(r.oos_wr) ? NaN : Number(r.oos_wr))],
         [show(f.spct2)(na(r.oos_exp) ? NaN : Number(r.oos_exp)), Number(r.oos_exp) > 0 ? 'cr-good' : 'cr-bad'],
         [show(f.spct2)(na(r.oos_exp_free) ? NaN : Number(r.oos_exp_free)), Number(r.oos_exp_free) > 0 ? 'cr-good' : 'cr-bad'],
-        [na(r.p_oos) ? '—' : f.p2(Number(r.p_oos))],
+        [na(r.p_oos) ? '—' : f.p3(Number(r.p_oos))],
         [show(f.pct1)(Number(r.oos_mdd))],
         [show(f.spct2)(na(r.extra_oos_exp) ? NaN : Number(r.extra_oos_exp)), Number(r.extra_oos_exp) > 0 ? 'cr-good' : 'cr-bad'],
         [r.verdict_upbit, r.verdict_upbit === '통과' ? 'cr-good' : 'cr-bad'],
@@ -517,15 +540,19 @@
       { text: '단순 보유', color: C()[1], dashed: true },
       { text: '다른 후보', color: 'var(--cds-chart-muted)' }]);
     const { svg, w, h } = frame(el, 300);
-    const y = d3.scaleLinear(d3.extent(rows, (r) => r.value), [h - 26, 10]).nice();
-    const labW = textWidth(svg, y.ticks(5).map(f.x2));
+    const pos = rows.filter((r) => r.value > 0);
+    const [lo, hi] = d3.extent(pos, (r) => r.value);
+    const y = d3.scaleLog([Math.min(lo, 0.9), Math.max(hi, 1.1)], [h - 26, 10]).base(2);
+    const ticks = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16].filter((t) => t >= y.domain()[0] * 0.98 && t <= y.domain()[1] * 1.02);
+    const times = (t) => `${t}배`;
+    const labW = textWidth(svg, ticks.map(times));
     const x = d3.scaleUtc(d3.extent(rows, (r) => r.date), [labW + 12, w - 10]);
     svg.append('g').attr('transform', `translate(0,${h - 26})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(w / 110))).tickFormat(d3.utcFormat('%Y-%m'))).call(axisStyle);
-    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(f.x2).tickSize(-(w - labW - 22))).call(axisStyle).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).tickValues(ticks).tickFormat(times).tickSize(-(w - labW - 22))).call(axisStyle).call((g) => g.select('.domain').remove());
     svg.append('line').attr('x1', labW + 12).attr('x2', w - 10).attr('y1', y(1)).attr('y2', y(1)).style('stroke', 'var(--cds-chart-reference)');
     svg.append('line').attr('x1', x(oosStart)).attr('x2', x(oosStart)).attr('y1', 10).attr('y2', h - 26).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
     svg.append('text').attr('x', x(oosStart) + 4).attr('y', 20).attr('class', 'cr-strong').text('검증 기간 →');
-    const line = d3.line().x((r) => x(r.date)).y((r) => y(r.value)).defined((r) => !Number.isNaN(r.value));
+    const line = d3.line().x((r) => x(r.date)).y((r) => y(r.value)).defined((r) => r.value > 0);
     const order = [...bySeries.keys()].sort((a, b) => (a === best.id) - (b === best.id) || (a === hold) - (b === hold));
     for (const s of order) {
       svg.append('path').datum(bySeries.get(s)).style('fill', 'none').style('stroke', colorOf(s))
@@ -547,8 +574,8 @@
         rule.attr('x1', x(b.date)).attr('x2', x(b.date)).attr('opacity', 1);
         dot.attr('cx', x(b.date)).attr('cy', y(b.value)).attr('opacity', 1);
         tip.show(ev, d3.utcFormat('%Y-%m-%d')(b.date), [
-          { text: `${best.short}: ${f.x2(b.value)}`, color: C()[0] },
-          ...(hh ? [{ text: `단순 보유: ${f.x2(hh.value)}`, color: C()[1] }] : [])]);
+          { text: `${best.short}: ${f.x2(b.value)}배`, color: C()[0] },
+          ...(hh ? [{ text: `단순 보유: ${f.x2(hh.value)}배`, color: C()[1] }] : [])]);
       })
       .on('mouseleave', () => { tip.hide(); rule.attr('opacity', 0); dot.attr('opacity', 0); });
   }
@@ -588,8 +615,9 @@
     const el = document.getElementById('chart-walk');
     if (!state(el, ['walk_forward'])) return;
     const rows = dash.data('walk_forward').data.map((r) => ({ ...r, ret: Number(r.ret), traded: r.traded === true || r.traded === 'true' }));
-    const costs = [{ k: 'upbit', name: '업비트', color: C()[0] }, { k: 'free_api', name: '수수료 무료', color: C()[2] }];
-    legend(document.getElementById('legend-walk'), [...costs.map((c) => ({ text: c.name, color: c.color })), { text: '쉼 = 거래 안 함', color: 'var(--cds-chart-muted)' }]);
+    const costs = [{ k: 'upbit', name: '업비트', color: C()[0] }, { k: 'free_api', name: '수수료 무료', color: C()[2] }, { k: 'hold', name: '단순 보유', color: 'var(--cds-chart-muted)' }];
+    legend(document.getElementById('legend-walk'), costs.map((c) => ({ text: c.name, color: c.color })));
+    rows.push(...rows.filter((r) => r.cost === 'upbit').map((r) => ({ ...r, cost: 'hold', ret: Number(r.hold_ret), traded: true, pick: '4코인 그냥 보유', n: 0, wr: null })));
     const starts = [...new Set(rows.map((r) => r.start))];
     const { svg, w, h } = frame(el, 260);
     const ext = d3.extent(rows, (r) => r.ret);
@@ -610,9 +638,11 @@
     bars.filter((r) => !r.traded).append('text')
       .attr('x', (r) => x0(r.start) + x1(r.cost) + x1.bandwidth() / 2).attr('y', y(0) - 4).attr('text-anchor', 'middle').text('쉼');
     bars.append('rect').attr('x', (r) => x0(r.start) + x1(r.cost)).attr('width', x1.bandwidth()).attr('y', 10).attr('height', h - 50).style('fill', 'transparent')
-      .on('mousemove', (ev, r) => tip.show(ev, `${r.start} 분기 · ${nm[r.cost]}`, r.traded
-        ? [{ text: `고른 규칙: ${r.pick}` }, { text: `${f.int(Number(r.n))}회 거래 · 승률 ${show(f.pct1)(Number(r.wr))}` }, { text: `분기 수익 ${f.spct1(r.ret)}`, color: col[r.cost] }]
-        : [{ text: '직전 12개월 1등도 손해 → 쉼' }]))
+      .on('mousemove', (ev, r) => tip.show(ev, `${r.start} 분기 · ${nm[r.cost]}`, r.cost === 'hold'
+        ? [{ text: `4코인 그냥 보유 ${f.spct1(r.ret)}`, color: col[r.cost] }]
+        : r.traded
+          ? [{ text: `고른 규칙: ${r.pick}` }, { text: `${f.int(Number(r.n))}회 거래 · 승률 ${show(f.pct1)(na(r.wr) ? NaN : Number(r.wr))}` }, { text: `분기 수익 ${f.spct1(r.ret)}`, color: col[r.cost] }]
+          : [{ text: '직전 12개월 1등도 손해 → 쉼' }]))
       .on('mouseleave', () => tip.hide());
     const every = Math.ceil(starts.length / Math.max(1, Math.floor((w - labW) / 60)));
     svg.append('g').selectAll('text').data(starts.filter((_, i) => i % every === 0)).join('text')
