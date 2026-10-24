@@ -13,6 +13,7 @@
 | [`results/validation_summary.md`](results/validation_summary.md) | 처음 보는 2019~2023년 채점 결과 (사전 등록 기준) |
 | [`research/PREREG_2019-2023.md`](research/PREREG_2019-2023.md) | 데이터를 보기 전에 정한 채점 기준 |
 | [`results/us_dividend.md`](results/us_dividend.md) | (번외) 미국 배당주 '단타 + 배당락 전날 풀매수' 아이디어 점검 |
+| [`results/split_plan.md`](results/split_plan.md) | 봇이 꺼낸 돈을 생활비 · 배당주 · 비트코인으로 나누면 (9년 계산) |
 | [`results/summary.md`](results/summary.md) | 1단계 실험 결과 요약표 |
 
 ## 폴더 구조
@@ -33,6 +34,7 @@ research/               1단계: 과거 데이터로 전략 검증하는 코드
   export_validation.py  추가 검증 결과를 리포트용 데이터로
   fetch_us.py           (번외) 미국 주식 일봉·1시간봉·배당 내려받기 (Yahoo)
   us_dividend_check.py  (번외) 미국 배당주 아이디어 점검 → results/us_dividend.md
+  split_check.py        봇이 꺼낸 돈 나누기 (생활비·배당주·비트코인) → results/split_plan.md
   test_engine.py        계산기가 맞게 동작하는지 확인하는 테스트
 results/                실험 결과 (요약표, 원자료 JSON)
   report/               리포트 페이지(index.html)와 그래프용 데이터

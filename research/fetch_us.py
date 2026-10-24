@@ -40,6 +40,9 @@ def main():
             (OUT / f"{t}_{iv}.json").write_bytes(raw)
             print(f"{t} {iv}: {len(raw) / 1024:.0f}KB")
             time.sleep(1)
+    raw = get(s, "KRW=X", "1d", p1d, now)  # 원/달러 환율 (배당주를 원화로 계산할 때 사용)
+    (OUT / "USDKRW_1d.json").write_bytes(raw)
+    print(f"USDKRW 1d: {len(raw) / 1024:.0f}KB")
 
 
 if __name__ == "__main__":
