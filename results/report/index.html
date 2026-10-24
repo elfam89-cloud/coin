@@ -1,270 +1,224 @@
 <style>
-  .cr { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); max-width: 72rem; margin-inline: auto; }
-  .cr-head { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
-  .cr-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
-  .cr-take { font-size: var(--cds-font-size-body); margin: 0; max-width: 68ch; line-height: 1.6; }
-  .cr-take.cr-verdict { font-weight: var(--cds-font-weight-medium); }
-  .cr-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); gap: var(--cds-gap-md); }
-  .cr-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
-  .cr-lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-  .cr-num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; }
-  .cr-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-  .cr-section { display: flex; flex-direction: column; gap: var(--cds-gap-md); }
-  .cr-section > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; text-wrap: balance; }
-  .cr-section > p { margin: 0; max-width: 68ch; line-height: 1.6; }
-  .cr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); gap: var(--cds-gap-md); }
-  .cr-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
-  .cr-card h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
-  .cr-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0 0 var(--cds-gap-sm); line-height: 1.5; }
-  .cr-chart { position: relative; min-height: 18rem; }
-  .cr-chart.cr-short { min-height: 12rem; }
-  .cr-chart svg { display: block; overflow: visible; }
-  .cr-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
-  .cr-chart .cr-strong { fill: var(--color-fg); }
-  .cr-tip { position: absolute; z-index: 2; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; max-width: 18rem; display: flex; flex-direction: column; gap: 2px; }
-  .cr-tip[hidden] { display: none; }
-  .cr-tip .cr-tip-h { color: var(--cds-text-secondary); }
-  .cr-tip .cr-row { display: flex; gap: var(--cds-gap-xs); align-items: center; }
-  .cr-sw { width: 0.6rem; height: 0.6rem; border-radius: 2px; flex: none; }
-  .cr-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
-  .cr-legend span { display: inline-flex; align-items: center; gap: var(--cds-gap-xs); }
-  .cr-fail { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
-  .cr-fail::before { content: ""; width: 0.375rem; height: 0.375rem; border-radius: 50%; background: var(--color-bad); }
-  .cr-tablewrap { overflow-x: auto; }
-  .cr-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
-  .cr-table th, .cr-table td { text-align: right; padding: var(--cds-pad-xs) var(--cds-pad-sm); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
-  .cr-table th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); position: sticky; top: 0; background: var(--color-panel); }
-  .cr-table th:nth-child(-n+2), .cr-table td:nth-child(-n+2) { text-align: left; }
-  .cr-table td:nth-child(2) { white-space: normal; min-width: 14rem; max-width: 26rem; }
-  .cr-good { color: var(--color-ok); }
-  .cr-bad { color: var(--color-bad); }
-  .cr-steps { margin: 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: var(--cds-gap-xs); max-width: 68ch; line-height: 1.6; }
-  .cr-timeline { display: grid; grid-template-columns: 2fr 1.1fr; gap: 4px; }
-  .cr-span { border-radius: var(--cds-radius); padding: var(--cds-pad-sm) var(--cds-pad-md); display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .cr-span.is { background: var(--color-panel); border: 1px dashed var(--color-border-line); }
-  .cr-span.oos { background: var(--color-panel); border: 2px solid var(--color-fg-muted); }
-  .cr-span b { font-weight: var(--cds-font-weight-medium); }
+  .kr { display: flex; flex-direction: column; gap: var(--cds-gap-xl); font-family: var(--font-anthropic-sans); max-width: 64rem; margin-inline: auto; }
+  .kr-head { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .kr-head h1 { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+  .kr-lead { font-size: var(--cds-font-size-heading); line-height: 1.6; margin: 0; max-width: 60ch; }
+  .kr-lead b { font-variant-numeric: tabular-nums; }
+  .kr-tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--cds-gap-md); }
+  .kr-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+  .kr-lbl { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .kr-num { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; }
+  .kr-sub { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); line-height: 1.5; }
+  .kr-box { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); }
+  .kr-box h2, .kr-section > h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; text-wrap: balance; }
+  .kr-list { margin: var(--cds-gap-sm) 0 0; padding-left: 1.2rem; display: flex; flex-direction: column; gap: var(--cds-gap-xs); line-height: 1.6; max-width: 68ch; }
+  .kr-section { display: flex; flex-direction: column; gap: var(--cds-gap-sm); }
+  .kr-note { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); margin: 0; line-height: 1.5; max-width: 72ch; }
+  .kr-toggles { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); align-items: center; }
+  .kr-group { display: inline-flex; align-items: center; gap: var(--cds-gap-xs); flex-wrap: wrap; }
+  .kr-group > span { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .kr-tg, .kr-chip { font: inherit; font-size: var(--cds-font-size-caption); padding: var(--cds-pad-xs) var(--cds-pad-md); border-radius: 999px; border: 1px solid var(--color-border-line); background: var(--color-panel); color: var(--color-fg); cursor: pointer; }
+  .kr-tg[aria-pressed="true"], .kr-chip[aria-pressed="true"] { background: var(--color-fg); color: var(--color-bg); border-color: var(--color-fg); }
+  .kr-tg:focus-visible, .kr-chip:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+  .kr-chips { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); }
+  .kr-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: flex; flex-direction: column; gap: var(--cds-gap-xs); min-width: 0; }
+  .kr-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: var(--cds-gap-md); }
+  .kr-tablewrap { overflow-x: auto; background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+  .kr-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-body); font-variant-numeric: tabular-nums; }
+  .kr-table th, .kr-table td { text-align: right; padding: var(--cds-pad-sm) var(--cds-pad-md); border-bottom: 1px solid var(--color-border-line); white-space: nowrap; }
+  .kr-table th { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); background: var(--color-panel); position: sticky; top: 0; }
+  .kr-table th:first-child, .kr-table td:first-child { text-align: left; white-space: normal; min-width: 12rem; }
+  .kr-table tr.kr-hold td { background: var(--color-bg); font-style: italic; }
+  .kr-table.kr-desc td:last-child, .kr-table.kr-desc th:last-child { text-align: left; white-space: normal; min-width: 18rem; }
+  .kr-good { color: var(--color-ok); }
+  .kr-bad { color: var(--color-bad); }
+  .kr-chart { position: relative; min-height: 20rem; }
+  .kr-chart.kr-short { min-height: 14rem; }
+  .kr-chart svg { display: block; overflow: visible; }
+  .kr-chart text { fill: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-family: var(--font-anthropic-sans); }
+  .kr-chart .kr-strong { fill: var(--color-fg); }
+  .kr-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+  .kr-legend span { display: inline-flex; align-items: center; gap: var(--cds-gap-xs); }
+  .kr-sw { width: 0.75rem; height: 0.75rem; border-radius: 2px; flex: none; display: inline-block; }
+  .kr-tip { position: absolute; z-index: 2; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); pointer-events: none; max-width: 20rem; display: flex; flex-direction: column; gap: 2px; font-variant-numeric: tabular-nums; }
+  .kr-tip[hidden] { display: none; }
+  .kr-tip .kr-tip-h { color: var(--cds-text-secondary); }
+  .kr-tip .kr-row { display: flex; gap: var(--cds-gap-xs); align-items: center; }
+  .kr-fail { display: flex; align-items: center; justify-content: center; gap: var(--cds-gap-xs); min-height: inherit; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+  .kr-fail::before { content: ""; width: 0.375rem; height: 0.375rem; border-radius: 50%; background: var(--color-bad); }
+  .kr-big { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-title); font-weight: 400; font-variant-numeric: tabular-nums; }
+  .kr-terms { display: grid; grid-template-columns: max-content 1fr; gap: var(--cds-gap-xs) var(--cds-gap-md); margin: var(--cds-gap-sm) 0 0; line-height: 1.6; }
+  .kr-terms dt { font-weight: var(--cds-font-weight-medium); }
+  .kr-terms dd { margin: 0; color: var(--color-fg-muted); }
+  @media (max-width: 30rem) { .kr-terms { grid-template-columns: 1fr; } .kr-terms dd { margin-bottom: var(--cds-gap-sm); } }
   [data-dash-source-state=empty] { color: transparent; }
   [data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
 </style>
 
-<div class="cr">
-  <header class="cr-head" id="top">
+<div class="kr">
+  <header class="kr-head" id="top">
     <h1>코인 단타 검증 리포트</h1>
-    <p class="cr-take cr-verdict" id="verdict" data-source="overview candidates">—</p>
-    <p class="cr-take">
-      과거 차트로 단타 규칙 <b data-source="overview" data-field="n_configs" data-row="0">—</b>가지를 시험했고,
-      학습 기간에 고른 후보 <b data-source="overview" data-field="n_candidates" data-row="0">—</b>개를 처음 보는 기간에 적용했습니다.
-      업비트 수수료 기준 통과 <b data-source="overview" data-field="n_pass_upbit" data-row="0">—</b>개,
-      API 수수료 무료 거래소 기준 통과 <b data-source="overview" data-field="n_pass_free" data-row="0">—</b>개입니다.
+    <p class="kr-lead">
+      30만원으로 최근 1년 동안 규칙대로 사고팔았다면, 가장 잘한 규칙도
+      <b data-source="summary" data-field="best_final_krw" data-row="0">—</b>
+      (<b data-source="summary" data-field="best_ret" data-row="0">—</b>)이 되었습니다.
+      그냥 들고만 있었다면 <b data-source="summary" data-field="hold_final_krw" data-row="0">—</b>
+      (<b data-source="summary" data-field="hold_ret" data-row="0">—</b>)입니다.
     </p>
   </header>
 
-  <section class="cr-tiles" id="tiles" aria-label="핵심 숫자">
-    <div class="cr-tile">
-      <span class="cr-lbl">계산한 가상 거래</span>
-      <span class="cr-num" data-source="overview" data-field="n_trades" data-row="0">—</span>
-      <span class="cr-sub">코인 <span data-source="overview" data-field="n_coins" data-row="0">—</span>개 · 5분봉 · 학습+검증 기간 전체</span>
+  <section class="kr-tiles" id="hero" aria-label="한눈에 보기">
+    <div class="kr-tile">
+      <span class="kr-lbl">최근 1년 가장 잘한 규칙</span>
+      <span class="kr-num" data-source="summary" data-field="best_final_krw" data-row="0">—</span>
+      <span class="kr-sub" data-source="summary" data-field="best_name" data-row="0">—</span>
     </div>
-    <div class="cr-tile">
-      <span class="cr-lbl">검증 기간 1위 후보 기대값 (업비트)</span>
-      <span class="cr-num" data-source="candidates" data-field="oos_exp" data-where="id=c1">—</span>
-      <span class="cr-sub" data-source="candidates" data-field="short" data-where="id=c1">—</span>
+    <div class="kr-tile">
+      <span class="kr-lbl">같은 1년, 그냥 들고 있었다면</span>
+      <span class="kr-num" data-source="summary" data-field="hold_final_krw" data-row="0">—</span>
+      <span class="kr-sub">비트코인·이더리움·리플·솔라나를 사서 아무것도 안 함</span>
     </div>
-    <div class="cr-tile">
-      <span class="cr-lbl">워크포워드 누적 (업비트)</span>
-      <span class="cr-num" data-source="overview" data-field="wf_total_upbit" data-row="0">—</span>
-      <span class="cr-sub">12개월로 고르고 3개월 적용, 반복</span>
-    </div>
-    <div class="cr-tile">
-      <span class="cr-lbl">워크포워드 누적 (수수료 무료)</span>
-      <span class="cr-num" data-source="overview" data-field="wf_total_free" data-row="0">—</span>
-      <span class="cr-sub">같은 방식, 슬리피지만 적용</span>
-    </div>
-    <div class="cr-tile">
-      <span class="cr-lbl">워크포워드 기간 단순 보유</span>
-      <span class="cr-num" data-source="overview" data-field="wf_hold_total" data-row="0">—</span>
-      <span class="cr-sub"><span data-source="overview" data-field="wf_start" data-row="0">—</span>부터 4코인을 그냥 들고 있었다면</span>
-    </div>
-    <div class="cr-tile">
-      <span class="cr-lbl">검증 기간 단순 보유</span>
-      <span class="cr-num" data-source="buy_hold" data-field="ret" data-where="period=oos">—</span>
-      <span class="cr-sub">주력 4코인을 사서 그냥 둔 경우</span>
+    <div class="kr-tile">
+      <span class="kr-lbl">실전에 써도 되는 규칙</span>
+      <span class="kr-num"><span data-source="summary" data-field="n_pass_upbit" data-row="0">—</span>개</span>
+      <span class="kr-sub">후보 <span data-source="summary" data-field="n_candidates" data-row="0">—</span>개 중, 업비트 수수료 기준</span>
     </div>
   </section>
 
-  <section class="cr-section" id="method">
-    <h2>어떻게 시험했나</h2>
-    <p>
-      학습 기간에서만 규칙과 숫자를 고르고, 고른 규칙을 검증 기간에 한 번 적용했습니다.
-      시험 범위를 미리 보고 공부하면 점수가 부풀려지는 것과 같아서, 검증 기간 성적만 믿을 수 있습니다.
-    </p>
-    <div class="cr-timeline" aria-label="기간">
-      <div class="cr-span is">
-        <b>학습 기간 (규칙 고르기)</b>
-        <span class="cr-sub"><span data-source="overview" data-field="is_start" data-row="0">—</span> ~ <span data-source="overview" data-field="is_end" data-row="0">—</span></span>
-      </div>
-      <div class="cr-span oos">
-        <b>검증 기간 (처음 보는 시험)</b>
-        <span class="cr-sub"><span data-source="overview" data-field="oos_start" data-row="0">—</span> ~ <span data-source="overview" data-field="data_end" data-row="0">—</span></span>
-      </div>
-    </div>
-    <ul class="cr-steps">
-      <li>주력 코인 <b data-source="overview" data-field="coins_main" data-row="0">—</b>, 검증용 새 코인 <b data-source="overview" data-field="coins_extra" data-row="0">—</b></li>
-      <li>업비트 비용: 한쪽 수수료 <b data-source="overview" data-field="fee_upbit" data-row="0">—</b> + 슬리피지 <b data-source="overview" data-field="slip" data-row="0">—</b> (사고 팔 때 각각)</li>
-      <li>봉이 끝난 뒤에만 신호 확인 → 다음 봉 시가에 매수. 같은 5분 안에 손절가와 익절가가 둘 다 닿으면 손절로 계산</li>
-      <li>무작위로 샀을 때와 비교해서, 결과가 운인지 확인 (p값)</li>
+  <section class="kr-box" id="how">
+    <h2>이 리포트 읽는 법</h2>
+    <ul class="kr-list">
+      <li>30만원을 코인 4개에 7만 5천원씩 나눠 넣고, 각 코인에서 규칙대로 사고팔았다고 가정했습니다.</li>
+      <li>사고팔 때마다 업비트 수수료 <b data-source="summary" data-field="fee" data-row="0">—</b>와 체결 손해 <b data-source="summary" data-field="slip" data-row="0">—</b>를 뺐습니다.</li>
+      <li><b>최근 1년</b>(<span data-source="summary" data-field="recent_start" data-row="0">—</span> ~ <span data-source="summary" data-field="data_end" data-row="0">—</span>)은 규칙을 고를 때 보지 않은 기간입니다. 가장 믿을 만한 성적입니다.</li>
+      <li><b>3년 전체</b>(<span data-source="summary" data-field="all_start" data-row="0">—</span>부터)는 규칙을 고를 때 쓴 기간이 섞여 있어 실제보다 좋게 나옵니다. 참고만 하세요.</li>
     </ul>
-    <div class="cr-card" id="market">
-      <h3>시장 상황: 코인별 단순 보유 수익률</h3>
-      <p class="cr-note">학습 기간은 큰 상승장, 검증 기간은 큰 하락장이었습니다. 현물은 오를 때만 벌 수 있어서 하락장에서는 어떤 단타 규칙도 불리합니다. 두 기간은 눈금이 다릅니다.</p>
-      <div class="cr-chart cr-short dash-skeleton" id="chart-market" data-source="buy_hold_coin"></div>
-      <div class="cr-legend" id="legend-market"></div>
+  </section>
+
+  <div class="kr-toggles" id="toggles" role="group" aria-label="보기 선택">
+    <div class="kr-group">
+      <span>기간</span>
+      <button type="button" class="kr-tg" id="tg-recent" data-k="period" data-v="recent" aria-pressed="true">최근 1년 (중요)</button>
+      <button type="button" class="kr-tg" id="tg-all" data-k="period" data-v="all" aria-pressed="false">3년 전체 (참고)</button>
+    </div>
+    <div class="kr-group">
+      <span>수수료</span>
+      <button type="button" class="kr-tg" id="tg-upbit" data-k="cost" data-v="upbit" aria-pressed="true">업비트</button>
+      <button type="button" class="kr-tg" id="tg-free" data-k="cost" data-v="free" aria-pressed="false">수수료 무료 거래소</button>
+    </div>
+  </div>
+
+  <section class="kr-section" id="board">
+    <h2>규칙별 성적표</h2>
+    <p class="kr-note" id="board-note">—</p>
+    <div class="kr-tablewrap">
+      <table class="kr-table" id="table-board" data-source="scoreboard" data-row-key="rk">
+        <thead>
+          <tr>
+            <th data-field="name">규칙</th>
+            <th data-field="trades">거래 횟수</th>
+            <th data-field="win_rate">승률</th>
+            <th data-field="ret">누적 수익률</th>
+            <th data-field="final_krw">30만원 →</th>
+            <th data-field="profit_krw">수익금</th>
+            <th data-field="low_krw">가장 적을 때</th>
+            <th data-field="hold_h">평균 보유</th>
+            <th data-field="verdict">실전 판정</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="kr-note">실전 판정은 최근 1년 기준입니다. 이익, 거래 수, 운이 아닌지, 손실 폭, 새 코인 5가지를 모두 넘어야 통과입니다.</p>
+  </section>
+
+  <section class="kr-section" id="growth">
+    <h2>30만원이 어떻게 변했나</h2>
+    <p class="kr-note" id="growth-note">선 위에 마우스를 올리면 그날의 금액이 보입니다.</p>
+    <div class="kr-legend" id="legend-growth"></div>
+    <div class="kr-card">
+      <div class="kr-chart dash-skeleton" id="chart-growth" data-source="curve scoreboard"></div>
     </div>
   </section>
 
-  <section class="cr-section" id="winrate">
-    <h2>승률 60%는 설정만 바꿔도 만들 수 있습니다</h2>
-    <p>
-      아래 점은 모두 <b>아무 때나 무작위로 산 경우</b>입니다. 손절은 넓게, 익절은 좁게 잡으면 승률이 올라가지만
-      돈은 벌지 못합니다. 그래서 이 프로젝트는 승률보다 기대값(거래 1번당 평균 수익)을 먼저 봅니다.
+  <section class="kr-section" id="months">
+    <h2>달마다 번 돈 (최근 1년)</h2>
+    <div class="kr-chips" id="chips-months" role="group" aria-label="규칙 선택" data-source="scoreboard"></div>
+    <p class="kr-note">
+      이익 본 달 <b data-source="month_stats" data-field="up" data-where="id=c1&amp;cost=upbit" id="ms-up">—</b>개월,
+      손해 본 달 <b data-source="month_stats" data-field="down" data-where="id=c1&amp;cost=upbit" id="ms-down">—</b>개월.
+      가장 좋았던 달 <b data-source="month_stats" data-field="best" data-where="id=c1&amp;cost=upbit" id="ms-best">—</b>,
+      가장 나빴던 달 <b data-source="month_stats" data-field="worst" data-where="id=c1&amp;cost=upbit" id="ms-worst">—</b>.
     </p>
-    <div class="cr-card">
-      <h3>무작위 진입: 손절·익절 조합별 승률과 기대값</h3>
-      <p class="cr-note">
-        승률 60% 이상인 조합 <b data-source="grid_trap" data-field="n_wr60" data-row="0">—</b>개 중
-        업비트 비용을 빼면 손해인 조합 <b data-source="grid_trap" data-field="n_wr60_loss" data-row="0">—</b>개.
-        점에 마우스를 올리면 조합이 보입니다.
-      </p>
-      <div class="cr-chart dash-skeleton" id="chart-scatter" data-source="random_grid"></div>
+    <div class="kr-card">
+      <div class="kr-chart kr-short dash-skeleton" id="chart-months" data-source="monthly"></div>
     </div>
   </section>
 
-  <section class="cr-section" id="candidates">
-    <h2>후보 전략 성적표</h2>
-    <p>
-      전략군마다 학습 기간 1등 설정과, 승률 60% 이상이면서 기대값이 플러스인 설정을 후보로 뽑았습니다.
-      이전 세션의 원본 규칙(1시간봉, 손절 -5% / 익절 +10%)도 함께 넣었습니다.
-    </p>
-    <div class="cr-card">
-      <h3>학습 기간 → 검증 기간 기대값 변화 (업비트 비용)</h3>
-      <p class="cr-note">빈 점이 학습 기간, 찬 점이 검증 기간입니다. 오른쪽(0보다 큼)이어야 돈이 쌓입니다. 대부분 왼쪽으로 밀려나면 과거에만 맞춘 규칙입니다.</p>
-      <div class="cr-chart dash-skeleton" id="chart-dumbbell" data-source="candidates"></div>
-    </div>
-    <div class="cr-card">
-      <h3>상세 표 (주력 4코인 합산)</h3>
-      <p class="cr-note">기대값과 승률은 거래 1번 기준입니다. p값이 0.05보다 작으면 무작위보다 낫다고 볼 수 있습니다. 낙폭은 4코인에 25%씩 나눠 투자한 계좌 기준입니다.</p>
-      <div class="cr-tablewrap">
-        <table class="cr-table" id="table-cand" data-source="candidates" data-row-key="id">
-          <thead>
-            <tr>
-              <th data-field="id">ID</th>
-              <th data-field="label">규칙</th>
-              <th data-field="is_wr">학습 승률</th>
-              <th data-field="is_exp">학습 기대값</th>
-              <th data-field="oos_n">검증 거래수</th>
-              <th data-field="oos_wr">검증 승률</th>
-              <th data-field="oos_exp">검증 기대값</th>
-              <th data-field="oos_exp_free">수수료 무료</th>
-              <th data-field="p_oos">p값</th>
-              <th data-field="oos_mdd">최대 낙폭</th>
-              <th data-field="extra_oos_exp">새 코인</th>
-              <th data-field="verdict_upbit">판정</th>
-              <th data-field="fail_upbit">미달 항목</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+  <section class="kr-section" id="winrate">
+    <h2>승률이 높으면 돈을 벌까?</h2>
+    <p class="kr-note">이전 세션의 체크리스트도 익절을 아주 짧게 잡으면 승률이 크게 올라갑니다. 그런데 돈은 어떻게 됐을까요?</p>
+    <div class="kr-grid" id="wr-cards" data-source="scoreboard"></div>
+    <p id="wr-explain" data-source="scoreboard">—</p>
+  </section>
+
+  <section class="kr-section" id="rules">
+    <h2>규칙 설명</h2>
+    <div class="kr-tablewrap">
+      <table class="kr-table kr-desc" id="table-rules" data-source="scoreboard" data-row-key="rk">
+        <thead><tr><th data-field="name">규칙</th><th data-field="desc">언제 사고 언제 파나</th></tr></thead>
+        <tbody></tbody>
+      </table>
     </div>
   </section>
 
-  <section class="cr-section" id="curves">
-    <h2>계좌가 실제로 어떻게 움직였을까</h2>
-    <div class="cr-card">
-      <h3>계좌 가치 (시작 = 1.0, 업비트 비용)</h3>
-      <p class="cr-note">주력 4코인에 25%씩 나눠 각 후보 규칙대로 매매한 경우와, 그냥 사서 둔 경우입니다. 세로축은 시작 금액의 몇 배인지이고, 칸 간격이 같으면 같은 비율로 늘어난 것입니다. 세로 점선 오른쪽이 검증 기간입니다.</p>
-      <div class="cr-legend" id="legend-curves"></div>
-      <div class="cr-chart dash-skeleton" id="chart-curves" data-source="curves overview candidates"></div>
-    </div>
+  <section class="kr-box" id="next">
+    <h2>그래서 다음은</h2>
+    <ul class="kr-list" id="next-list" data-source="summary"><li>—</li></ul>
   </section>
 
-  <section class="cr-section" id="fees">
-    <h2>수수료가 결과를 바꿉니다</h2>
-    <div class="cr-grid">
-      <div class="cr-card">
-        <h3>검증 기간 기대값: 비용 가정별</h3>
-        <p class="cr-note">비용 0은 참고용입니다. 빗썸·코인원 등은 2026년 8월부터 API 거래 수수료를 무료로 바꿨습니다.</p>
-        <div class="cr-legend" id="legend-fees"></div>
-        <div class="cr-chart dash-skeleton" id="chart-fees" data-source="candidates"></div>
-      </div>
-      <div class="cr-card">
-        <h3>워크포워드: 분기별 수익</h3>
-        <p class="cr-note">매 분기 직전 12개월 1등 설정을 골라 다음 3개월에 적용했습니다. 회색 막대는 같은 분기에 4코인을 그냥 들고 있었을 때입니다.</p>
-        <div class="cr-legend" id="legend-walk"></div>
-        <div class="cr-chart dash-skeleton" id="chart-walk" data-source="walk_forward"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cr-section" id="goal">
-    <h2>'승률 60%' 목표 점검</h2>
-    <div class="cr-grid">
-      <div class="cr-card">
-        <h3>승률 60% 설정이 끝까지 살아남았나</h3>
-        <p class="cr-note">거래 100회 이상인 설정 → 학습 승률 60% 이상 → 그중 기대값 플러스 → 검증 기간에도 플러스</p>
-        <div class="cr-chart cr-short dash-skeleton" id="chart-funnel" data-source="winrate_check"></div>
-      </div>
-      <div class="cr-card">
-        <h3>검증 기간 월별 손익: 1위 후보</h3>
-        <p class="cr-note"><span data-source="candidates" data-field="label" data-where="id=c1">—</span><span> · 4코인에 25%씩 나눈 계좌 기준</span></p>
-        <div class="cr-chart cr-short dash-skeleton" id="chart-monthly" data-source="monthly candidates"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cr-section" id="heat">
-    <h2>과최적화를 눈으로 보기</h2>
-    <p id="heat-title" data-source="heat">—</p>
-    <div class="cr-grid">
-      <div class="cr-card">
-        <h3>학습 기간 기대값</h3>
-        <p class="cr-note">칸 하나가 손절·익절 조합 하나입니다. 초록은 이익, 빨강은 손해입니다.</p>
-        <div class="cr-chart cr-short dash-skeleton" id="chart-heat-is" data-source="heat"></div>
-      </div>
-      <div class="cr-card">
-        <h3>검증 기간 기대값</h3>
-        <p class="cr-note">학습 기간에 초록이던 칸이 여기서도 초록이면 믿을 만한 규칙입니다.</p>
-        <div class="cr-chart cr-short dash-skeleton" id="chart-heat-oos" data-source="heat"></div>
-      </div>
-    </div>
-  </section>
-
-  <section class="cr-section" id="next">
-    <h2>다음 단계</h2>
-    <p data-source="candidates buy_hold" id="promising">—</p>
-    <ul class="cr-steps" id="next-steps" data-source="overview"><li>—</li></ul>
+  <section class="kr-box" id="terms">
+    <h2>용어 풀이</h2>
+    <dl class="kr-terms">
+      <dt>승률</dt><dd>전체 거래 중 이익으로 끝난 거래의 비율. 높아도 이익 금액이 작고 손실 금액이 크면 돈은 줄어듭니다.</dd>
+      <dt>누적 수익률</dt><dd>처음 금액이 기간 끝에 몇 % 늘었거나 줄었는지.</dd>
+      <dt>수익금</dt><dd>기간 끝 금액에서 처음 30만원을 뺀 돈. 마이너스면 손해.</dd>
+      <dt>가장 적을 때</dt><dd>기간 중 계좌 금액이 가장 작았던 순간. 이만큼 줄어도 버틸 수 있어야 합니다.</dd>
+      <dt>평균 보유</dt><dd>한 번 사서 팔 때까지 걸린 평균 시간.</dd>
+      <dt>체결 손해</dt><dd>원하는 가격보다 조금 불리하게 사고팔게 되는 손해(슬리피지).</dd>
+    </dl>
   </section>
 </div>
 
 <script>
 (() => {
   const loc = d3.formatLocale({ decimal: '.', thousands: ',', grouping: [3], currency: ['', ''], minus: '-' });
-  const f = {
-    int: loc.format(','), pct1: loc.format('.1%'), pct0: loc.format('.0%'), spct1: loc.format('+.1%'),
-    spct2: loc.format('+.2%'), p3: loc.format('.3f'), x2: loc.format('.2f'), fee: loc.format('.2%'),
-  };
-  const na = (v) => v === null || v === undefined || Number.isNaN(v);
-  const show = (fmt) => (v) => (na(v) ? '—' : fmt(v));
+  const f = { int: loc.format(','), sint: loc.format('+,'), pct1: loc.format('.1%'), spct1: loc.format('+.1%'), spct2: loc.format('+.2%'), fee: loc.format('.2%') };
+  const na = (v) => v === null || v === undefined || Number.isNaN(Number(v));
+  const won = (v) => (na(v) ? '—' : `${f.int(Math.round(Number(v)))}원`);
+  const swon = (v) => (na(v) ? '—' : `${f.sint(Math.round(Number(v)))}원`);
+  const man = (v) => `${loc.format(v % 10000 === 0 ? ',.0f' : ',.1f')(v / 10000)}만`;
+  const hours = (h) => (na(h) ? '—' : Number(h) >= 48 ? `${(Number(h) / 24).toFixed(1)}일` : `${Number(h).toFixed(1)}시간`);
+  const tone = (v) => (na(v) ? '' : Number(v) > 0 ? 'kr-good' : Number(v) < 0 ? 'kr-bad' : '');
+  const view = { period: 'recent', cost: 'upbit', month: 'c1' };
+  const PERIOD = { recent: '최근 1년', all: '3년 전체' };
+  const COST = { upbit: '업비트 수수료', free: '수수료 무료 거래소' };
 
-  // 승률 60% 이상 무작위 조합 중 업비트 비용으로 손해인 개수
-  dash.calc('grid_trap', {
-    inputs: ['random_grid'],
-    title: '승률 60%+ 조합 중 손해',
-    description: '무작위 진입 손절·익절 조합 중 승률 60% 이상인 개수와, 그중 업비트 비용 기준 기대값이 0 이하인 개수.',
-    fn: (random_grid) => {
-      const hi = random_grid.filter((r) => Number(r.wr) >= 0.6);
-      return [{ n_wr60: hi.length, n_wr60_loss: hi.filter((r) => Number(r.exp_upbit) <= 0).length }];
+  // 규칙별 월 손익 요약 (이익 본 달, 손해 본 달, 가장 좋았던/나빴던 달)
+  dash.calc('month_stats', {
+    inputs: ['monthly'],
+    title: '월별 손익 요약',
+    description: '최근 1년 동안 규칙별로 이익 본 달과 손해 본 달의 수, 가장 좋았던 달과 나빴던 달의 수익금(원).',
+    fn: (monthly) => {
+      const groups = new Map();
+      for (const r of monthly) {
+        const k = `${r.id}|${r.cost}`;
+        if (!groups.has(k)) groups.set(k, { id: r.id, cost: r.cost, up: 0, down: 0, best: -Infinity, worst: Infinity });
+        const g = groups.get(k), v = Number(r.profit_krw);
+        if (v > 0) g.up += 1; else if (v < 0) g.down += 1;
+        g.best = Math.max(g.best, v); g.worst = Math.min(g.worst, v);
+      }
+      return [...groups.values()];
     },
   });
 
@@ -274,10 +228,8 @@
     el.replaceChildren();
     if (st.some((s) => s === 'error')) {
       el.classList.remove('dash-skeleton');
-      const d = document.createElement('div'); d.className = 'cr-fail'; d.textContent = 'Failed to load'; el.appendChild(d);
-    } else {
-      el.classList.add('dash-skeleton');
-    }
+      const d = document.createElement('div'); d.className = 'kr-fail'; d.textContent = 'Failed to load'; el.appendChild(d);
+    } else el.classList.add('dash-skeleton');
     return false;
   }
 
@@ -289,7 +241,7 @@
   }
 
   function textWidth(svg, strings) {
-    const t = svg.append('text').attr('class', 'cr-measure');
+    const t = svg.append('text');
     let m = 0;
     for (const s of strings) { t.text(s); m = Math.max(m, t.node().getComputedTextLength()); }
     t.remove();
@@ -297,37 +249,26 @@
   }
 
   function tooltip(el) {
-    const t = document.createElement('div'); t.className = 'cr-tip'; t.hidden = true; el.appendChild(t);
+    const t = document.createElement('div'); t.className = 'kr-tip'; t.hidden = true; el.appendChild(t);
     return {
       show(ev, head, rows) {
         t.replaceChildren();
-        const h = document.createElement('div'); h.className = 'cr-tip-h'; h.textContent = head; t.appendChild(h);
+        const h = document.createElement('div'); h.className = 'kr-tip-h'; h.textContent = head; t.appendChild(h);
         for (const r of rows) {
-          const row = document.createElement('div'); row.className = 'cr-row';
-          if (r.color) { const sw = document.createElement('span'); sw.className = 'cr-sw'; sw.style.background = r.color; row.appendChild(sw); }
+          const row = document.createElement('div'); row.className = 'kr-row';
+          if (r.color) { const sw = document.createElement('span'); sw.className = 'kr-sw'; sw.style.background = r.color; row.appendChild(sw); }
           const s = document.createElement('span'); s.textContent = r.text; row.appendChild(s);
           t.appendChild(row);
         }
         t.hidden = false;
         const box = el.getBoundingClientRect();
-        let x = ev.clientX - box.left + 12, y = ev.clientY - box.top + 12;
-        const tw = t.offsetWidth, th = t.offsetHeight;
-        if (x + tw > box.width) x = Math.max(0, ev.clientX - box.left - tw - 12);
-        if (y + th > box.height) y = Math.max(0, ev.clientY - box.top - th - 12);
+        let x = ev.clientX - box.left + 14, y = ev.clientY - box.top + 14;
+        if (x + t.offsetWidth > box.width) x = Math.max(0, ev.clientX - box.left - t.offsetWidth - 14);
+        if (y + t.offsetHeight > box.height) y = Math.max(0, ev.clientY - box.top - t.offsetHeight - 14);
         t.style.left = `${x}px`; t.style.top = `${y}px`;
       },
       hide() { t.hidden = true; },
     };
-  }
-
-  function legend(el, items) {
-    el.replaceChildren();
-    for (const it of items) {
-      const s = document.createElement('span');
-      const sw = document.createElement('span'); sw.className = 'cr-sw'; sw.style.background = it.color;
-      if (it.dashed) { sw.style.background = 'transparent'; sw.style.border = `2px dashed ${it.color}`; }
-      s.appendChild(sw); s.appendChild(document.createTextNode(it.text)); el.appendChild(s);
-    }
   }
 
   function axisStyle(g) {
@@ -336,409 +277,199 @@
     g.selectAll('.tick line').style('stroke', 'var(--cds-chart-grid)');
   }
 
-  const C = () => dash.colors;
+  const colorOf = (id) => (id === 'c1' ? dash.colors[0] : id === 'c2' ? dash.colors[1] : id === 'hold' ? 'var(--color-fg)' : 'var(--cds-chart-muted)');
+  const rowsFor = (period, cost) => {
+    const b = dash.data('scoreboard');
+    return b.status === 'ok' ? b.data.filter((r) => r.period === period && r.cost === cost) : [];
+  };
 
-  // ---------- 머리말 ----------
-  function drawHeader() {
-    const v = document.getElementById('verdict');
-    const ov = dash.data('overview');
-    const nx = document.getElementById('next-steps');
-    if (ov.status !== 'ok' || !ov.data.length) { v.textContent = '—'; return; }
-    const o = ov.data[0];
-    const up = Number(o.n_pass_upbit), fr = Number(o.n_pass_free);
-    const cdAll = dash.data('candidates').status === 'ok' ? dash.data('candidates').data : [];
-    v.textContent = up > 0
-      ? '업비트 수수료로도 통과한 규칙이 있습니다. 다음 단계(모의 자동매매)로 갈 후보가 생겼습니다.'
-      : fr > 0
-        ? '업비트 수수료로는 통과한 규칙이 없고, 수수료 무료 거래소 조건에서만 통과한 규칙이 있습니다.'
-        : '시험한 단타 규칙 중 처음 보는 기간의 통과 기준을 넘은 것은 없습니다.'
-          + (cdAll.length && cdAll.every((r) => Number(r.oos_exp) <= 0) ? ' 업비트 수수료를 빼면 후보 모두 손해였습니다.' : '')
-          + ' 이대로 실전 자동매매를 시작하면 안 됩니다.';
-    const steps = up > 0
-      ? ['통과한 규칙으로 모의 자동매매 봇을 만들어 4주 이상 실시간 시세로 시험합니다.',
-         '모의 결과가 검증 기간 성적과 비슷한지 매주 비교합니다.',
-         '텔레그램 봇과 고정 IP 서버를 준비합니다.']
-      : ['유망 후보를 텔레그램 신호 알림과 모의 매매로 4주 이상 지켜봅니다. 실제 돈은 쓰지 않습니다. 이미 한 번 본 검증 기간이 아니라 앞으로의 데이터로 판단합니다.',
-         '수수료 무료 거래소(빗썸·코인원·코빗)의 API 조건과 기간을 확인합니다. 수수료가 없어지면 모든 규칙의 기대값이 그만큼 올라갑니다.',
-         '하락장에서는 쉬는 규칙과, 하루~며칠 들고 가는 규칙도 같은 방법으로 시험합니다.',
-         '모의 결과가 통과 기준을 넘기 전에는 실전 주문 기능을 만들지 않습니다.'];
-    nx.replaceChildren(...steps.map((s) => { const li = document.createElement('li'); li.textContent = s; return li; }));
-    const pr = document.getElementById('promising');
-    const cd = dash.data('candidates');
-    if (cd.status === 'ok') {
-      // 유망 후보: 무작위보다 확실히 나았거나(p<0.05), 수수료 무료 조건과 새 코인 모두에서 플러스
-      const good = cd.data.filter((r) => (!na(r.p_oos) && Number(r.p_oos) < 0.05) || (Number(r.extra_oos_exp) > 0 && Number(r.oos_exp_free) > 0));
-      const bh = dash.data('buy_hold');
-      const hold = bh.status === 'ok' ? bh.data.find((r) => r.period === 'oos') : null;
-      const lessLoss = hold && good.length && good.every((r) => Number(r.oos_ret) > Number(hold.ret));
-      pr.textContent = good.length
-        ? `통과는 못 했지만 더 지켜볼 만한 후보: ${good.map((r) => r.short).join(', ')}.` + (lessLoss ? ' 모두 검증 기간에 단순 보유보다 훨씬 덜 잃었습니다.' : '')
-        : '더 지켜볼 만한 후보도 없습니다. 규칙의 종류부터 다시 고릅니다.';
-    } else pr.textContent = '—';
+  // ---------- 머리말·타일 ----------
+  function fillSummary() {
+    const s = dash.data('summary');
+    const fmt = { best_final_krw: won, hold_final_krw: won, best_ret: (v) => f.spct1(Number(v)), hold_ret: (v) => f.spct1(Number(v)),
+                  n_pass_upbit: (v) => f.int(Number(v)), n_candidates: (v) => f.int(Number(v)), fee: (v) => f.fee(Number(v)), slip: (v) => f.fee(Number(v)) };
+    document.querySelectorAll('[data-source="summary"][data-field]').forEach((el) => {
+      if (s.status !== 'ok' || !s.data.length) { el.textContent = '—'; return; }
+      const k = el.dataset.field, v = s.data[0][k];
+      el.textContent = v === null || v === undefined ? '—' : fmt[k] ? fmt[k](v) : String(v);
+    });
+    const nx = document.getElementById('next-list');
+    if (s.status !== 'ok' || !s.data.length) { nx.replaceChildren(); return; }
+    const pass = Number(s.data[0].n_pass_upbit);
+    const items = pass > 0
+      ? ['통과한 규칙으로 실제 돈 없이 8주 동안 실시간 모의 매매를 해 봅니다.', '모의 결과가 이 리포트와 비슷하면 20~30만원 소액 실전을 준비합니다.']
+      : ['지금 규칙 그대로 실제 돈을 넣으면 안 됩니다.',
+         '가장 덜 잃은 두 규칙(짧은 급락 때 사기, 크게 오르기 시작하면 따라 사기)을 실제 돈 없이 8주 동안 지켜봅니다. 신호가 나오면 텔레그램으로 알려 드리고, 가상으로 사고판 결과를 매주 이 리포트처럼 보여 드립니다.',
+         '그동안 수수료가 무료인 거래소도 비교합니다. 위에서 "수수료 무료 거래소"를 눌러 차이를 볼 수 있습니다.',
+         '8주 뒤 결과가 좋으면 20~30만원 소액 실전을 준비하고, 나쁘면 규칙을 다시 고릅니다.'];
+    nx.replaceChildren(...items.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
   }
 
-  function fillMarks() {
-    const fmt = { n_trades: f.int, n_configs: f.int, n_candidates: f.int, n_pass_upbit: f.int, n_pass_free: f.int, n_coins: f.int,
-                  wf_total_upbit: f.spct1, wf_total_free: f.spct1, wf_hold_total: f.spct1, fee_upbit: f.fee, slip: f.fee };
-    const ov = dash.data('overview');
-    document.querySelectorAll('[data-source="overview"][data-field]').forEach((el) => {
-      if (ov.status !== 'ok' || !ov.data.length) { el.textContent = '—'; return; }
-      const k = el.dataset.field, v = ov.data[0][k];
-      el.textContent = na(v) ? '—' : fmt[k] ? fmt[k](Number(v)) : String(v);
-    });
-    const bh = dash.data('buy_hold');
-    document.querySelectorAll('[data-source="buy_hold"]').forEach((el) => {
-      const row = bh.status === 'ok' ? bh.data.find((r) => r.period === 'oos') : null;
-      el.textContent = row ? f.spct1(Number(row.ret)) : '—';
-    });
-    const gt = dash.data('grid_trap');
-    document.querySelectorAll('[data-source="grid_trap"]').forEach((el) => {
-      el.textContent = gt.status === 'ok' && gt.data.length ? f.int(gt.data[0][el.dataset.field]) : '—';
-    });
-    const cd = dash.data('candidates');
-    document.querySelectorAll('[data-source="candidates"][data-where]').forEach((el) => {
-      const id = el.dataset.where.split('=')[1];
-      const row = cd.status === 'ok' ? cd.data.find((r) => r.id === id) : null;
-      const v = row ? row[el.dataset.field] : null;
-      el.textContent = na(v) ? '—' : el.dataset.field === 'oos_exp' ? f.spct2(Number(v)) : String(v);
-    });
-  }
-
-  // ---------- 시장 상황 ----------
-  function drawMarket() {
-    const el = document.getElementById('chart-market');
-    if (!state(el, ['buy_hold_coin'])) return;
-    const rows = dash.data('buy_hold_coin').data.map((r) => ({ ...r, ret: Number(r.ret) }));
-    const name = { is: '학습 기간', oos: '검증 기간' };
-    const col = { is: 'var(--color-ok)', oos: 'var(--color-bad)' };
-    legend(document.getElementById('legend-market'), []);
-    const { svg, w, h } = frame(el, 200);
-    const tip = tooltip(el);
-    const panels = ['is', 'oos'];
-    const gap = 24, pw = (w - gap) / 2;
-    panels.forEach((p, i) => {
-      const pr = rows.filter((r) => r.period === p);
-      const x0 = i * (pw + gap);
-      const ext = d3.extent(pr, (r) => r.ret);
-      const y = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [h - 24, 22]).nice();
-      const labW = textWidth(svg, y.ticks(3).map(f.pct0));
-      const x = d3.scaleBand(pr.map((r) => r.coin), [x0 + labW + 10, x0 + pw]).padding(0.3);
-      svg.append('text').attr('x', x0).attr('y', 12).attr('class', 'cr-strong').text(name[p]);
-      svg.append('g').attr('transform', `translate(${x0 + labW + 6},0)`).call(d3.axisLeft(y).ticks(3).tickFormat(f.pct0).tickSize(-(pw - labW - 6))).call(axisStyle).call((g) => g.select('.domain').remove());
-      svg.append('line').attr('x1', x0 + labW + 6).attr('x2', x0 + pw).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)');
-      svg.append('g').selectAll('rect').data(pr).join('rect')
-        .attr('x', (r) => x(r.coin)).attr('width', x.bandwidth())
-        .attr('y', (r) => Math.min(y(0), y(r.ret))).attr('height', (r) => Math.max(1, Math.abs(y(r.ret) - y(0))))
-        .attr('rx', 3).style('fill', col[p]).attr('fill-opacity', 0.75)
-        .on('mousemove', (ev, r) => tip.show(ev, `${r.coin} · ${name[p]}`, [{ text: `그냥 들고 있었다면 ${f.spct1(r.ret)}` }]))
-        .on('mouseleave', () => tip.hide());
-      svg.append('g').selectAll('text').data(pr).join('text').attr('x', (r) => x(r.coin) + x.bandwidth() / 2).attr('y', h - 6)
-        .attr('text-anchor', 'middle').text((r) => r.coin);
-    });
-  }
-
-  // ---------- 승률 vs 기대값 ----------
-  function drawScatter() {
-    const el = document.getElementById('chart-scatter');
-    if (!state(el, ['random_grid'])) return;
-    const rows = dash.data('random_grid').data.map((r) => ({ ...r, wr: Number(r.wr), exp: Number(r.exp_upbit), zero: Number(r.exp_zero) }));
-    const { svg, w, h } = frame(el, 300);
-    const xe = d3.extent(rows, (r) => r.wr), ye = d3.extent(rows, (r) => r.exp);
-    const x = d3.scaleLinear([Math.min(xe[0], 0.55) - 0.03, Math.max(xe[1], 0.65) + 0.03], [0, 1]).nice();
-    const y = d3.scaleLinear([Math.min(ye[0], 0), Math.max(ye[1], 0)], [h - 34, 10]).nice();
-    const labW = textWidth(svg, y.ticks(5).map(f.spct1));
-    x.range([labW + 12, w - 10]);
-    svg.append('g').attr('transform', `translate(0,${h - 34})`).call(d3.axisBottom(x).ticks(6).tickFormat(f.pct0).tickSize(-(h - 44))).call(axisStyle);
-    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(f.spct1).tickSize(-(w - labW - 22))).call(axisStyle).call((g) => g.select('.domain').remove());
-    svg.append('line').attr('x1', labW + 12).attr('x2', w - 10).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1.5);
-    svg.append('line').attr('x1', x(0.6)).attr('x2', x(0.6)).attr('y1', 10).attr('y2', h - 34).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
-    svg.append('text').attr('x', x(0.6) + 4).attr('y', 20).attr('class', 'cr-strong').text('승률 60%');
-    svg.append('text').attr('x', w - 12).attr('y', y(0) - 6).attr('text-anchor', 'end').attr('class', 'cr-strong').text('본전 (기대값 0)');
-    svg.append('text').attr('x', (labW + w) / 2).attr('y', h - 2).attr('text-anchor', 'middle').text('승률 →');
-    const tip = tooltip(el);
-    svg.append('g').selectAll('circle').data(rows).join('circle')
-      .attr('cx', (r) => x(r.wr)).attr('cy', (r) => y(r.exp)).attr('r', 5)
-      .style('fill', (r) => (r.wr >= 0.6 ? C()[0] : 'var(--cds-chart-muted)')).attr('fill-opacity', 0.9)
-      .on('mousemove', (ev, r) => tip.show(ev, r.label, [
-        { text: `승률 ${f.pct1(r.wr)}` },
-        { text: `기대값 (업비트 비용) ${f.spct2(r.exp)}` },
-        { text: `기대값 (비용 0) ${f.spct2(r.zero)}` }]))
-      .on('mouseleave', () => tip.hide());
-  }
-
-  // ---------- 학습 → 검증 ----------
-  function drawDumbbell() {
-    const el = document.getElementById('chart-dumbbell');
-    if (!state(el, ['candidates'])) return;
-    const rows = dash.data('candidates').data.map((r) => ({ ...r, a: Number(r.is_exp), b: Number(r.oos_exp) }));
-    const rowH = 30, h = rows.length * rowH + 40;
-    const { svg, w } = frame(el, h);
-    const labW = Math.min(w * 0.45, textWidth(svg, rows.map((r) => r.short)) + 8);
-    const ext = d3.extent(rows.flatMap((r) => [r.a, r.b]));
-    const x = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [labW + 10, w - 10]).nice();
-    const y = d3.scaleBand(rows.map((r) => r.id), [10, h - 30]).padding(0.3);
-    svg.append('g').attr('transform', `translate(0,${h - 30})`).call(d3.axisBottom(x).ticks(5).tickFormat(f.spct1).tickSize(-(h - 40))).call(axisStyle);
-    svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 6).attr('y2', h - 30).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1.5);
-    const g = svg.append('g').selectAll('g').data(rows).join('g').attr('transform', (r) => `translate(0,${y(r.id) + y.bandwidth() / 2})`);
-    g.append('text').attr('x', 0).attr('dy', '0.35em').attr('class', 'cr-strong').text((r) => r.short);
-    g.append('line').attr('x1', (r) => x(r.a)).attr('x2', (r) => x(r.b)).style('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 2).attr('stroke-linecap', 'round');
-    g.append('circle').attr('cx', (r) => x(r.a)).attr('r', 5).style('fill', 'var(--color-panel)').style('stroke', 'var(--cds-chart-muted)').attr('stroke-width', 2);
-    g.append('circle').attr('cx', (r) => x(r.b)).attr('r', 6).style('fill', (r) => (r.b > 0 ? 'var(--color-ok)' : 'var(--color-bad)'));
-    const tip = tooltip(el);
-    g.append('rect').attr('x', 0).attr('y', -rowH / 2).attr('width', w).attr('height', rowH).style('fill', 'transparent')
-      .on('mousemove', (ev, r) => tip.show(ev, r.label, [
-        { text: `학습 기대값 ${f.spct2(r.a)} · 승률 ${f.pct1(Number(r.is_wr))}` },
-        { text: `검증 기대값 ${f.spct2(r.b)} · 승률 ${show(f.pct1)(Number(r.oos_wr))}` },
-        { text: `검증 거래 ${f.int(Number(r.oos_n))}회 · 평균 보유 ${show(f.x2)(Number(r.oos_hold_h))}시간` }]))
-      .on('mouseleave', () => tip.hide());
-  }
-
-  // ---------- 상세 표 ----------
-  function drawTable() {
-    const tb = document.querySelector('#table-cand tbody');
-    const ds = dash.data('candidates');
+  // ---------- 성적표 ----------
+  function drawBoard() {
+    const tb = document.querySelector('#table-board tbody');
+    const note = document.getElementById('board-note');
+    note.textContent = `${PERIOD[view.period]} · ${COST[view.cost]} 기준입니다. 금액이 큰 순서로 정렬했습니다.`;
+    const rows = rowsFor(view.period, view.cost).filter((r) => r.kind !== 'example').sort((a, b) => Number(b.final_krw) - Number(a.final_krw));
     tb.replaceChildren();
-    if (ds.status !== 'ok') return;
-    for (const r of ds.data) {
-      const tr = document.createElement('tr');
+    for (const r of rows) {
+      const tr = document.createElement('tr'); tr.dataset.key = r.rk;
+      if (r.kind === 'hold') tr.className = 'kr-hold';
       const cells = [
-        [r.id], [r.label],
-        [show(f.pct1)(Number(r.is_wr))], [show(f.spct2)(Number(r.is_exp))],
-        [f.int(Number(r.oos_n))], [show(f.pct1)(na(r.oos_wr) ? NaN : Number(r.oos_wr))],
-        [show(f.spct2)(na(r.oos_exp) ? NaN : Number(r.oos_exp)), Number(r.oos_exp) > 0 ? 'cr-good' : 'cr-bad'],
-        [show(f.spct2)(na(r.oos_exp_free) ? NaN : Number(r.oos_exp_free)), Number(r.oos_exp_free) > 0 ? 'cr-good' : 'cr-bad'],
-        [na(r.p_oos) ? '—' : f.p3(Number(r.p_oos))],
-        [show(f.pct1)(Number(r.oos_mdd))],
-        [show(f.spct2)(na(r.extra_oos_exp) ? NaN : Number(r.extra_oos_exp)), Number(r.extra_oos_exp) > 0 ? 'cr-good' : 'cr-bad'],
-        [r.verdict_upbit, r.verdict_upbit === '통과' ? 'cr-good' : 'cr-bad'],
-        [r.fail_upbit || '—'],
+        [r.name],
+        [na(r.trades) ? '—' : f.int(Number(r.trades))],
+        [na(r.win_rate) ? '—' : f.pct1(Number(r.win_rate))],
+        [f.spct1(Number(r.ret)), tone(r.ret)],
+        [won(r.final_krw), tone(r.profit_krw)],
+        [swon(r.profit_krw), tone(r.profit_krw)],
+        [won(r.low_krw)],
+        [hours(r.hold_h)],
+        [r.verdict, r.verdict === '통과' ? 'kr-good' : r.verdict === '탈락' ? 'kr-bad' : ''],
       ];
-      cells.forEach(([text, cls]) => {
-        const td = document.createElement('td');
-        td.textContent = text;
-        if (cls) td.className = cls;
-        tr.appendChild(td);
-      });
+      for (const [text, cls] of cells) {
+        const td = document.createElement('td'); td.textContent = text; if (cls) td.className = cls; tr.appendChild(td);
+      }
       tb.appendChild(tr);
     }
   }
 
-  // ---------- 계좌 곡선 ----------
-  function drawCurves() {
-    const el = document.getElementById('chart-curves');
-    if (!state(el, ['curves', 'overview', 'candidates'])) return;
-    const cand = dash.data('candidates').data;
-    const best = cand[0];
+  // ---------- 30만원 곡선 ----------
+  function drawGrowth() {
+    const el = document.getElementById('chart-growth');
+    const lg = document.getElementById('legend-growth');
+    if (!state(el, ['curve', 'scoreboard'])) { lg.replaceChildren(); return; }
+    const names = new Map(rowsFor(view.period, view.cost).map((r) => [r.id, r.name]));
     const parse = d3.utcParse('%Y-%m-%d');
-    const rows = dash.data('curves').data.map((r) => ({ date: parse(r.date), series: r.series, value: Number(r.value) }));
-    const bySeries = d3.group(rows, (r) => r.series);
-    const oosStart = parse(dash.data('overview').data[0].oos_start);
-    const hold = 'hold';
-    const colorOf = (s) => (s === best.id ? C()[0] : s === hold ? C()[1] : 'var(--cds-chart-muted)');
-    legend(document.getElementById('legend-curves'), [
-      { text: `${best.short} (검증 1위)`, color: C()[0] },
-      { text: '단순 보유', color: C()[1], dashed: true },
-      { text: '다른 후보', color: 'var(--cds-chart-muted)' }]);
-    const { svg, w, h } = frame(el, 300);
-    const pos = rows.filter((r) => r.value > 0);
-    const [lo, hi] = d3.extent(pos, (r) => r.value);
-    const y = d3.scaleLog([Math.min(lo, 0.9), Math.max(hi, 1.1)], [h - 26, 10]).base(2);
-    const ticks = [0.125, 0.25, 0.5, 1, 2, 4, 8, 16].filter((t) => t >= y.domain()[0] * 0.98 && t <= y.domain()[1] * 1.02);
-    const times = (t) => `${t}배`;
-    const labW = textWidth(svg, ticks.map(times));
-    const x = d3.scaleUtc(d3.extent(rows, (r) => r.date), [labW + 12, w - 10]);
-    svg.append('g').attr('transform', `translate(0,${h - 26})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(w / 110))).tickFormat(d3.utcFormat('%Y-%m'))).call(axisStyle);
-    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).tickValues(ticks).tickFormat(times).tickSize(-(w - labW - 22))).call(axisStyle).call((g) => g.select('.domain').remove());
-    svg.append('line').attr('x1', labW + 12).attr('x2', w - 10).attr('y1', y(1)).attr('y2', y(1)).style('stroke', 'var(--cds-chart-reference)');
-    svg.append('line').attr('x1', x(oosStart)).attr('x2', x(oosStart)).attr('y1', 10).attr('y2', h - 26).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '4 3');
-    svg.append('text').attr('x', x(oosStart) + 4).attr('y', 20).attr('class', 'cr-strong').text('검증 기간 →');
-    const line = d3.line().x((r) => x(r.date)).y((r) => y(r.value)).defined((r) => r.value > 0);
-    const order = [...bySeries.keys()].sort((a, b) => (a === best.id) - (b === best.id) || (a === hold) - (b === hold));
-    for (const s of order) {
-      svg.append('path').datum(bySeries.get(s)).style('fill', 'none').style('stroke', colorOf(s))
-        .attr('stroke-width', s === best.id || s === hold ? 2 : 1.2).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round')
-        .attr('stroke-dasharray', s === hold ? '5 4' : null).attr('stroke-opacity', s === best.id || s === hold ? 1 : 0.6)
-        .attr('d', line);
+    const rows = dash.data('curve').data.filter((r) => r.period === view.period && r.cost === view.cost && !String(r.id).startsWith('ex'))
+      .map((r) => ({ id: r.id, date: parse(r.date), krw: Number(r.krw) }));
+    const by = d3.group(rows, (r) => r.id);
+    lg.replaceChildren();
+    for (const id of ['c1', 'c2', 'hold']) {
+      if (!by.has(id)) continue;
+      const s = document.createElement('span'); const sw = document.createElement('span'); sw.className = 'kr-sw';
+      if (id === 'hold') { sw.style.background = 'transparent'; sw.style.border = `2px dashed ${colorOf(id)}`; } else sw.style.background = colorOf(id);
+      s.append(sw, document.createTextNode(names.get(id) || id)); lg.appendChild(s);
     }
-    const bestRows = bySeries.get(best.id) || [], holdRows = bySeries.get(hold) || [];
+    const so = document.createElement('span'); const sw2 = document.createElement('span'); sw2.className = 'kr-sw'; sw2.style.background = 'var(--cds-chart-muted)';
+    so.append(sw2, document.createTextNode('나머지 규칙')); lg.appendChild(so);
+
+    const { svg, w, h } = frame(el, 320);
+    const y = d3.scaleLinear(d3.extent(rows, (r) => r.krw), [h - 28, 12]).nice();
+    const labW = textWidth(svg, y.ticks(5).map(man));
+    const x = d3.scaleUtc(d3.extent(rows, (r) => r.date), [labW + 12, w - 12]);
+    svg.append('g').attr('transform', `translate(0,${h - 28})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(w / 110))).tickFormat(d3.utcFormat('%Y-%m'))).call(axisStyle);
+    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(man).tickSize(-(w - labW - 24))).call(axisStyle).call((g) => g.select('.domain').remove());
+    svg.append('line').attr('x1', labW + 12).attr('x2', w - 12).attr('y1', y(300000)).attr('y2', y(300000)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '2 3');
+    svg.append('text').attr('x', labW + 16).attr('y', y(300000) - 5).attr('class', 'kr-strong').text('시작 30만원');
+    const line = d3.line().x((r) => x(r.date)).y((r) => y(r.krw));
+    const order = [...by.keys()].sort((a, b) => ['c2', 'c1', 'hold'].indexOf(a) - ['c2', 'c1', 'hold'].indexOf(b));
+    for (const id of order) {
+      const main = id === 'c1' || id === 'c2' || id === 'hold';
+      svg.append('path').datum(by.get(id)).style('fill', 'none').style('stroke', colorOf(id))
+        .attr('stroke-width', main ? 2.25 : 1.25).attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round')
+        .attr('stroke-dasharray', id === 'hold' ? '5 4' : null).attr('stroke-opacity', main ? 1 : 0.7).attr('d', line);
+    }
     const tip = tooltip(el);
-    const rule = svg.append('line').attr('y1', 10).attr('y2', h - 26).style('stroke', 'var(--cds-chart-axis)').attr('opacity', 0);
-    const dot = svg.append('circle').attr('r', 4).style('fill', C()[0]).attr('opacity', 0);
+    const rule = svg.append('line').attr('y1', 12).attr('y2', h - 28).style('stroke', 'var(--cds-chart-axis)').attr('opacity', 0);
+    const ref = by.get('c1') || [...by.values()][0] || [];
     const bis = d3.bisector((r) => r.date).center;
-    svg.append('rect').attr('x', labW + 12).attr('y', 10).attr('width', w - labW - 22).attr('height', h - 36).style('fill', 'transparent')
+    svg.append('rect').attr('x', labW + 12).attr('y', 12).attr('width', w - labW - 24).attr('height', h - 40).style('fill', 'transparent')
       .on('mousemove', (ev) => {
         const [mx] = d3.pointer(ev);
-        const dt = x.invert(mx);
-        const b = bestRows[bis(bestRows, dt)], hh = holdRows[bis(holdRows, dt)];
-        if (!b) return;
-        rule.attr('x1', x(b.date)).attr('x2', x(b.date)).attr('opacity', 1);
-        dot.attr('cx', x(b.date)).attr('cy', y(b.value)).attr('opacity', 1);
-        tip.show(ev, d3.utcFormat('%Y-%m-%d')(b.date), [
-          { text: `${best.short}: ${f.x2(b.value)}배`, color: C()[0] },
-          ...(hh ? [{ text: `단순 보유: ${f.x2(hh.value)}배`, color: C()[1] }] : [])]);
+        const at = ref[bis(ref, x.invert(mx))];
+        if (!at) return;
+        rule.attr('x1', x(at.date)).attr('x2', x(at.date)).attr('opacity', 1);
+        const vals = [...by.entries()].map(([id, arr]) => ({ id, v: arr[bis(arr, at.date)] })).filter((d) => d.v)
+          .sort((a, b) => b.v.krw - a.v.krw);
+        tip.show(ev, d3.utcFormat('%Y-%m-%d')(at.date), vals.map((d) => ({ text: `${names.get(d.id) || d.id}: ${won(d.v.krw)}`, color: colorOf(d.id) })));
       })
-      .on('mouseleave', () => { tip.hide(); rule.attr('opacity', 0); dot.attr('opacity', 0); });
-  }
-
-  // ---------- 비용 가정별 ----------
-  function drawFees() {
-    const el = document.getElementById('chart-fees');
-    if (!state(el, ['candidates'])) return;
-    const keys = [
-      { k: 'oos_exp_zero', name: '비용 0 (참고)', color: 'var(--cds-chart-muted)' },
-      { k: 'oos_exp_free', name: '수수료 무료 + 슬리피지', color: C()[2] },
-      { k: 'oos_exp', name: '업비트 (수수료 + 슬리피지)', color: C()[0] }];
-    legend(document.getElementById('legend-fees'), keys.map((d) => ({ text: d.name, color: d.color })));
-    const rows = dash.data('candidates').data;
-    const flat = rows.flatMap((r) => keys.map((d) => ({ id: r.id, short: r.short, label: r.label, key: d.k, name: d.name, color: d.color, v: Number(r[d.k]) })))
-      .filter((d) => !Number.isNaN(d.v));
-    const h = rows.length * 40 + 34;
-    const { svg, w } = frame(el, h);
-    const labW = Math.min(w * 0.4, textWidth(svg, rows.map((r) => r.id)) + 10);
-    const ext = d3.extent(flat, (d) => d.v);
-    const x = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [labW + 8, w - 10]).nice();
-    const y0 = d3.scaleBand(rows.map((r) => r.id), [6, h - 28]).padding(0.2);
-    const y1 = d3.scaleBand(keys.map((d) => d.k), [0, y0.bandwidth()]).padding(0.1);
-    svg.append('g').attr('transform', `translate(0,${h - 28})`).call(d3.axisBottom(x).ticks(4).tickFormat(f.spct1).tickSize(-(h - 34))).call(axisStyle);
-    svg.append('line').attr('x1', x(0)).attr('x2', x(0)).attr('y1', 4).attr('y2', h - 28).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1.5);
-    svg.append('g').selectAll('text').data(rows).join('text').attr('x', 0).attr('y', (r) => y0(r.id) + y0.bandwidth() / 2).attr('dy', '0.35em').attr('class', 'cr-strong').text((r) => r.id);
-    const tip = tooltip(el);
-    svg.append('g').selectAll('rect').data(flat).join('rect')
-      .attr('x', (d) => Math.min(x(0), x(d.v))).attr('width', (d) => Math.max(1, Math.abs(x(d.v) - x(0))))
-      .attr('y', (d) => y0(d.id) + y1(d.key)).attr('height', y1.bandwidth()).attr('rx', 2).style('fill', (d) => d.color)
-      .on('mousemove', (ev, d) => tip.show(ev, d.short, [{ text: `${d.name}: ${f.spct2(d.v)}`, color: d.color }, { text: d.label }]))
-      .on('mouseleave', () => tip.hide());
-  }
-
-  // ---------- 워크포워드 ----------
-  function drawWalk() {
-    const el = document.getElementById('chart-walk');
-    if (!state(el, ['walk_forward'])) return;
-    const rows = dash.data('walk_forward').data.map((r) => ({ ...r, ret: Number(r.ret), traded: r.traded === true || r.traded === 'true' }));
-    const costs = [{ k: 'upbit', name: '업비트', color: C()[0] }, { k: 'free_api', name: '수수료 무료', color: C()[2] }, { k: 'hold', name: '단순 보유', color: 'var(--cds-chart-muted)' }];
-    legend(document.getElementById('legend-walk'), costs.map((c) => ({ text: c.name, color: c.color })));
-    rows.push(...rows.filter((r) => r.cost === 'upbit').map((r) => ({ ...r, cost: 'hold', ret: Number(r.hold_ret), traded: true, pick: '4코인 그냥 보유', n: 0, wr: null })));
-    const starts = [...new Set(rows.map((r) => r.start))];
-    const { svg, w, h } = frame(el, 260);
-    const ext = d3.extent(rows, (r) => r.ret);
-    const y = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1], 0.01)], [h - 40, 10]).nice();
-    const labW = textWidth(svg, y.ticks(4).map(f.pct0));
-    const x0 = d3.scaleBand(starts, [labW + 12, w - 4]).padding(0.2);
-    const x1 = d3.scaleBand(costs.map((c) => c.k), [0, x0.bandwidth()]).padding(0.1);
-    svg.append('g').attr('transform', `translate(${labW + 8},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(f.pct0).tickSize(-(w - labW - 12))).call(axisStyle).call((g) => g.select('.domain').remove());
-    svg.append('line').attr('x1', labW + 8).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)');
-    const col = Object.fromEntries(costs.map((c) => [c.k, c.color]));
-    const nm = Object.fromEntries(costs.map((c) => [c.k, c.name]));
-    const tip = tooltip(el);
-    const bars = svg.append('g').selectAll('g').data(rows).join('g');
-    bars.filter((r) => r.traded).append('rect')
-      .attr('x', (r) => x0(r.start) + x1(r.cost)).attr('width', x1.bandwidth())
-      .attr('y', (r) => Math.min(y(0), y(r.ret))).attr('height', (r) => Math.max(1, Math.abs(y(r.ret) - y(0))))
-      .attr('rx', 2).style('fill', (r) => col[r.cost]);
-    bars.filter((r) => !r.traded).append('text')
-      .attr('x', (r) => x0(r.start) + x1(r.cost) + x1.bandwidth() / 2).attr('y', y(0) - 4).attr('text-anchor', 'middle').text('쉼');
-    bars.append('rect').attr('x', (r) => x0(r.start) + x1(r.cost)).attr('width', x1.bandwidth()).attr('y', 10).attr('height', h - 50).style('fill', 'transparent')
-      .on('mousemove', (ev, r) => tip.show(ev, `${r.start} 분기 · ${nm[r.cost]}`, r.cost === 'hold'
-        ? [{ text: `4코인 그냥 보유 ${f.spct1(r.ret)}`, color: col[r.cost] }]
-        : r.traded
-          ? [{ text: `고른 규칙: ${r.pick}` }, { text: `${f.int(Number(r.n))}회 거래 · 승률 ${show(f.pct1)(na(r.wr) ? NaN : Number(r.wr))}` }, { text: `분기 수익 ${f.spct1(r.ret)}`, color: col[r.cost] }]
-          : [{ text: '직전 12개월 1등도 손해 → 쉼' }]))
-      .on('mouseleave', () => tip.hide());
-    const every = Math.ceil(starts.length / Math.max(1, Math.floor((w - labW) / 60)));
-    svg.append('g').selectAll('text').data(starts.filter((_, i) => i % every === 0)).join('text')
-      .attr('x', (s) => x0(s) + x0.bandwidth() / 2).attr('y', h - 22).attr('text-anchor', 'middle').text((s) => s);
-  }
-
-  // ---------- 승률 60% 깔때기 ----------
-  function drawFunnel() {
-    const el = document.getElementById('chart-funnel');
-    if (!state(el, ['winrate_check'])) return;
-    const rows = dash.data('winrate_check').data;
-    const steps = [{ k: 'total', name: '거래 100회+ 설정' }, { k: 'wr60', name: '학습 승률 60%+' }, { k: 'wr60_prof', name: '그중 기대값+' }, { k: 'wr60_prof_oos', name: '검증에서도 기대값+' }];
-    const costName = { upbit: '업비트 비용', free_api: '수수료 무료' };
-    const flat = rows.flatMap((r) => steps.map((s, i) => ({ cost: r.cost, step: s.k, name: s.name, i, v: Number(r[s.k]) })));
-    const h = rows.length * (steps.length * 22 + 26) + 8;
-    const { svg, w } = frame(el, h);
-    const labW = textWidth(svg, steps.map((s) => s.name)) + 10;
-    const max = d3.max(flat, (d) => d.v) || 1;
-    const x = d3.scaleLinear([0, max], [labW, w - 50]);
-    let top = 4;
-    rows.forEach((r) => {
-      svg.append('text').attr('x', 0).attr('y', top + 12).attr('class', 'cr-strong').text(costName[r.cost] || r.cost);
-      top += 20;
-      steps.forEach((s) => {
-        const v = Number(r[s.k]);
-        svg.append('text').attr('x', 0).attr('y', top + 11).text(s.name);
-        svg.append('rect').attr('x', labW).attr('y', top).attr('height', 15).attr('rx', 3)
-          .attr('width', Math.max(1, x(v) - labW))
-          .style('fill', s.k === 'wr60_prof_oos' ? (v > 0 ? 'var(--color-ok)' : 'var(--color-bad)') : s.k === 'total' ? 'var(--cds-chart-muted)' : C()[0]);
-        svg.append('text').attr('x', x(v) + 6).attr('y', top + 11).attr('class', 'cr-strong').text(f.int(v));
-        top += 22;
-      });
-      top += 6;
-    });
+      .on('mouseleave', () => { tip.hide(); rule.attr('opacity', 0); });
   }
 
   // ---------- 월별 ----------
-  function drawMonthly() {
-    const el = document.getElementById('chart-monthly');
-    if (!state(el, ['monthly', 'candidates'])) return;
-    const best = dash.data('candidates').data[0];
-    const rows = dash.data('monthly').data.filter((r) => r.id === best.id).map((r) => ({ ...r, ret: Number(r.ret) }));
-    const { svg, w, h } = frame(el, 200);
-    const ext = d3.extent(rows, (r) => r.ret);
-    const y = d3.scaleLinear([Math.min(0, ext[0] ?? 0), Math.max(0, ext[1] ?? 0, 0.005)], [h - 24, 8]).nice();
-    const labW = textWidth(svg, y.ticks(4).map(f.spct1));
+  function drawMonths() {
+    const chips = document.getElementById('chips-months');
+    const el = document.getElementById('chart-months');
+    const list = rowsFor('recent', view.cost).filter((r) => r.kind !== 'example').sort((a, b) => Number(b.final_krw) - Number(a.final_krw));
+    if (list.length && !list.some((r) => r.id === view.month)) view.month = list[0].id;
+    chips.replaceChildren(...list.map((r) => {
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'kr-chip'; b.textContent = r.name;
+      b.setAttribute('aria-pressed', String(r.id === view.month));
+      b.addEventListener('click', () => { view.month = r.id; drawMonths(); });
+      return b;
+    }));
+    const ms = dash.data('month_stats');
+    const st = ms.status === 'ok' ? ms.data.find((r) => r.id === view.month && r.cost === view.cost) : null;
+    for (const [elId, key, fmt] of [['ms-up', 'up', (v) => f.int(v)], ['ms-down', 'down', (v) => f.int(v)], ['ms-best', 'best', swon], ['ms-worst', 'worst', swon]]) {
+      const m = document.getElementById(elId);
+      m.dataset.where = `id=${view.month}&cost=${view.cost}`;
+      m.textContent = st ? fmt(st[key]) : '—';
+    }
+    if (!state(el, ['monthly'])) return;
+    const rows = dash.data('monthly').data.filter((r) => r.id === view.month && r.cost === view.cost).map((r) => ({ month: r.month, v: Number(r.profit_krw) }));
+    const { svg, w, h } = frame(el, 220);
+    const ext = d3.extent(rows, (r) => r.v);
+    const y = d3.scaleLinear([Math.min(0, ext[0] ?? 0), Math.max(0, ext[1] ?? 0, 1000)], [h - 26, 10]).nice();
+    const labW = textWidth(svg, y.ticks(4).map((v) => swon(v)));
     const x = d3.scaleBand(rows.map((r) => r.month), [labW + 12, w - 4]).padding(0.25);
-    svg.append('g').attr('transform', `translate(${labW + 8},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(f.spct1).tickSize(-(w - labW - 12))).call(axisStyle).call((g) => g.select('.domain').remove());
+    svg.append('g').attr('transform', `translate(${labW + 8},0)`).call(d3.axisLeft(y).ticks(4).tickFormat((v) => swon(v)).tickSize(-(w - labW - 12))).call(axisStyle).call((g) => g.select('.domain').remove());
     svg.append('line').attr('x1', labW + 8).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)');
     const tip = tooltip(el);
     svg.append('g').selectAll('rect').data(rows).join('rect')
       .attr('x', (r) => x(r.month)).attr('width', x.bandwidth())
-      .attr('y', (r) => Math.min(y(0), y(r.ret))).attr('height', (r) => Math.max(1, Math.abs(y(r.ret) - y(0))))
-      .attr('rx', 3).style('fill', (r) => (r.ret > 0 ? 'var(--color-ok)' : 'var(--color-bad)'))
-      .on('mousemove', (ev, r) => tip.show(ev, r.month, [{ text: `월 손익 ${f.spct1(r.ret)}` }]))
+      .attr('y', (r) => Math.min(y(0), y(r.v))).attr('height', (r) => Math.max(1, Math.abs(y(r.v) - y(0)))).attr('rx', 3)
+      .style('fill', (r) => (r.v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'))
+      .on('mousemove', (ev, r) => tip.show(ev, r.month, [{ text: `이 달 수익금 ${swon(r.v)}` }]))
       .on('mouseleave', () => tip.hide());
-    const every = Math.ceil(rows.length / Math.max(1, Math.floor((w - labW) / 52)));
+    const every = Math.ceil(rows.length / Math.max(1, Math.floor((w - labW) / 48)));
     svg.append('g').selectAll('text').data(rows.filter((_, i) => i % every === 0)).join('text')
-      .attr('x', (r) => x(r.month) + x.bandwidth() / 2).attr('y', h - 6).attr('text-anchor', 'middle').text((r) => r.month.slice(2));
+      .attr('x', (r) => x(r.month) + x.bandwidth() / 2).attr('y', h - 8).attr('text-anchor', 'middle').text((r) => `${Number(r.month.slice(5))}월`);
   }
 
-  // ---------- 히트맵 ----------
-  function drawHeat() {
-    const elA = document.getElementById('chart-heat-is'), elB = document.getElementById('chart-heat-oos');
-    const title = document.getElementById('heat-title');
-    const okA = state(elA, ['heat']), okB = state(elB, ['heat']);
-    if (!okA || !okB) { title.textContent = '—'; return; }
-    const all = dash.data('heat').data;
-    const group = all[0] && all[0].group;
-    const rows = all.filter((r) => r.group === group);
-    title.textContent = `${rows[0] ? rows[0].label : ''} 규칙의 손절·익절 조합을 모두 계산한 결과입니다. 왼쪽에서 가장 좋았던 칸이 오른쪽에서도 좋은지 보세요.`;
-    const sls = [...new Set(rows.map((r) => Number(r.sl)))].sort((a, b) => a - b);
-    const tps = [...new Set(rows.map((r) => Number(r.tp)))].sort((a, b) => a - b);
-    const maxAbs = d3.max(rows.flatMap((r) => [Math.abs(Number(r.is_exp)), Math.abs(Number(r.oos_exp))]).filter((v) => !Number.isNaN(v))) || 0.001;
-    for (const [el, key, wrKey] of [[elA, 'is_exp', 'is_wr'], [elB, 'oos_exp', 'oos_wr']]) {
-      const { svg, w, h } = frame(el, 210);
-      const labW = textWidth(svg, sls.map((s) => `손절 -${(s * 100).toFixed(1)}%`)) + 8;
-      const x = d3.scaleBand(tps, [labW, w - 2]).padding(0.06);
-      const y = d3.scaleBand(sls, [4, h - 30]).padding(0.06);
-      const tip = tooltip(el);
-      svg.append('g').selectAll('rect').data(rows).join('rect')
-        .attr('x', (r) => x(Number(r.tp))).attr('y', (r) => y(Number(r.sl))).attr('width', x.bandwidth()).attr('height', y.bandwidth()).attr('rx', 3)
-        .style('fill', (r) => (Number(r[key]) > 0 ? 'var(--color-ok)' : 'var(--color-bad)'))
-        .attr('fill-opacity', (r) => (Number.isNaN(Number(r[key])) || r[key] === null ? 0.05 : 0.15 + 0.85 * Math.min(1, Math.abs(Number(r[key])) / maxAbs)))
-        .on('mousemove', (ev, r) => tip.show(ev, `손절 -${(Number(r.sl) * 100).toFixed(1)}% / 익절 +${(Number(r.tp) * 100).toFixed(1)}%`, [
-          { text: `기대값 ${show(f.spct2)(r[key] === null ? NaN : Number(r[key]))}` }, { text: `승률 ${show(f.pct1)(r[wrKey] === null ? NaN : Number(r[wrKey]))}` }]))
-        .on('mouseleave', () => tip.hide());
-      svg.append('g').selectAll('text').data(sls).join('text').attr('x', 0).attr('y', (s) => y(s) + y.bandwidth() / 2).attr('dy', '0.35em').text((s) => `손절 -${(s * 100).toFixed(1)}%`);
-      svg.append('g').selectAll('text').data(tps).join('text').attr('x', (t) => x(t) + x.bandwidth() / 2).attr('y', h - 14).attr('text-anchor', 'middle').text((t) => `+${(t * 100).toFixed(1)}`);
-      svg.append('text').attr('x', (labW + w) / 2).attr('y', h - 1).attr('text-anchor', 'middle').text('익절 (%)');
-    }
+  // ---------- 승률 vs 돈 ----------
+  function drawWinrate() {
+    const box = document.getElementById('wr-cards');
+    const ex = document.getElementById('wr-explain');
+    const rows = rowsFor(view.period, view.cost);
+    const pick = ['ex1', 'c1', 'c2'].map((id) => rows.find((r) => r.id === id)).filter(Boolean);
+    box.replaceChildren(...pick.map((r) => {
+      const c = document.createElement('div'); c.className = 'kr-card';
+      const n = document.createElement('span'); n.className = 'kr-lbl'; n.textContent = r.name;
+      const a = document.createElement('span'); a.className = 'kr-sub'; a.textContent = '승률';
+      const wr = document.createElement('span'); wr.className = 'kr-big'; wr.textContent = na(r.win_rate) ? '—' : f.pct1(Number(r.win_rate));
+      const b = document.createElement('span'); b.className = 'kr-sub'; b.textContent = '30만원 →';
+      const fin = document.createElement('span'); fin.className = `kr-big ${tone(r.profit_krw)}`; fin.textContent = won(r.final_krw);
+      const rt = document.createElement('span'); rt.className = `kr-sub ${tone(r.ret)}`; rt.textContent = `누적 수익률 ${f.spct1(Number(r.ret))}`;
+      c.append(n, a, wr, b, fin, rt);
+      return c;
+    }));
+    const e1 = rows.find((r) => r.id === 'ex1');
+    if (!e1) { ex.textContent = '—'; return; }
+    const worse = pick.filter((r) => r.id !== 'ex1').every((r) => Number(r.final_krw) > Number(e1.final_krw));
+    ex.textContent = `승률이 ${f.pct1(Number(e1.win_rate))}인 설정은 이길 때 평균 ${f.spct2(Number(e1.avg_win))}만 벌고, 질 때 평균 ${f.spct2(Number(e1.avg_loss))}를 잃었습니다. `
+      + (worse ? '작게 여러 번 벌고 크게 한 번 잃어서, 셋 중 승률이 가장 높은데도 돈은 가장 많이 줄었습니다.' : '작게 여러 번 벌고 크게 한 번 잃는 구조라, 승률만큼 돈이 늘지 않았습니다.')
+      + ' 그래서 이 프로젝트는 승률보다 "30만원이 얼마가 됐나"를 먼저 봅니다.';
   }
 
-  dash.onData(() => {
-    const parts = [drawHeader, fillMarks, drawMarket, drawScatter, drawDumbbell, drawTable, drawCurves, drawFees, drawWalk, drawFunnel, drawMonthly, drawHeat];
-    for (const p of parts) p();
-  });
+  // ---------- 규칙 설명 ----------
+  function drawRules() {
+    const tb = document.querySelector('#table-rules tbody');
+    const rows = rowsFor('recent', 'upbit').sort((a, b) => (a.kind === 'hold') - (b.kind === 'hold') || (a.kind === 'example') - (b.kind === 'example') || Number(b.final_krw) - Number(a.final_krw));
+    tb.replaceChildren(...rows.map((r) => {
+      const tr = document.createElement('tr'); tr.dataset.key = r.rk;
+      const a = document.createElement('td'); a.textContent = r.name;
+      const b = document.createElement('td'); b.textContent = r.desc;
+      tr.append(a, b);
+      return tr;
+    }));
+  }
+
+  function drawAll() {
+    document.querySelectorAll('.kr-tg').forEach((b) => b.setAttribute('aria-pressed', String(view[b.dataset.k] === b.dataset.v)));
+    fillSummary(); drawBoard(); drawGrowth(); drawMonths(); drawWinrate(); drawRules();
+  }
+
+  document.querySelectorAll('.kr-tg').forEach((b) => b.addEventListener('click', () => { view[b.dataset.k] = b.dataset.v; drawAll(); }));
+  dash.onData(drawAll);
 })();
 </script>

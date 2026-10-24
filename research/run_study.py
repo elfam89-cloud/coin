@@ -194,6 +194,11 @@ def main():
     for r in table:
         if r["original"]:
             shortlist.setdefault(r["key"], set()).add("이전세션원본")
+    # 리포트 설명용 예시(후보 아님): 이전 세션 체크리스트 설정 중 검증 기간 승률이 가장 높았던 것
+    pool = [r for r in table if r["family"] == "pullback" and not r["original"] and r["oos_upbit_main"].get("n", 0) >= MIN_TRADES]
+    showcase = max(pool, key=lambda r: r["oos_upbit_main"]["win_rate"])["key"] if pool else None
+    if showcase:
+        shortlist.setdefault(showcase, set()).add("예시:승률최고(사후)")
     print(f"후보 {len(shortlist)}개 선정 (학습 기간 기준)", flush=True)
 
     # 3) 후보 정밀 분석: 무작위 기준선, 같은봉 가정 민감도, 포트폴리오 수익곡선/최대낙폭
@@ -270,6 +275,14 @@ def main():
                 streak = max(streak, run)
         d["oos_worst_trade"] = worst
         d["oos_max_loss_streak"] = streak
+        for cost in ("upbit", "free_api"):  # 전체 기간(학습 시작 ~ 끝) 거래 통계
+            rs_all, hold_all = [], []
+            for mk in MAIN:
+                e, x, pe, px, t = trades[mk][key]
+                sel = e >= pidx[mk]["is"][0]
+                rs_all.append(COSTS[cost].net(pe[sel], px[sel]))
+                hold_all.append(x[sel] - e[sel])
+            d[f"all_{cost}_main"] = trade_stats(np.concatenate(rs_all), np.concatenate(hold_all))
         for p in PERIODS:  # 비용 0 가정(참고용): 수수료가 결과를 얼마나 바꾸는지 보기 위해
             r0, _ = pooled(trades, MAIN, key, p, pidx, "zero")
             d[f"{p}_zero_main"] = trade_stats(r0)
@@ -284,10 +297,12 @@ def main():
                     eqs.append(pd.Series(equity(m.c, e, x, pe, px, COSTS[cost], lo, hi), index=m.ts[lo:hi]))
                 port = pd.concat(eqs, axis=1).ffill().bfill().mean(axis=1)
                 d[f"port_{p}_{cost}"] = {"return": float(port.iloc[-1] - 1), "mdd": max_drawdown(port.to_numpy())}
-                if p == "all":
+                if p in ("all", "oos"):
                     daily = port.resample("1D").last()
-                    d[f"curve_{cost}"] = [round(float(v), 4) for v in daily.to_numpy()]
-                    d["curve_dates"] = [ts.strftime("%Y-%m-%d") for ts in daily.index]
+                    tag = "" if p == "all" else "oos_"
+                    d[f"curve_{tag}{cost}"] = [round(float(v), 5) for v in daily.to_numpy()]
+                    d[f"curve_{tag}dates"] = [ts.strftime("%Y-%m-%d") for ts in daily.index]
+                    d[f"port_{p}_{cost}"]["min"] = float(port.min())
                 if p == "oos" and cost == "upbit":
                     mon = port.resample("MS").last()
                     prev = pd.concat([pd.Series([1.0]), mon.iloc[:-1]]).to_numpy()
@@ -304,10 +319,14 @@ def main():
             lo, hi = (pidx[mk]["is"][0], m.n) if p == "all" else pidx[mk][p]
             curves.append(pd.Series(m.c[lo:hi] / m.o[lo], index=m.ts[lo:hi]))
         port = pd.concat(curves, axis=1).ffill().bfill().mean(axis=1)
-        hold[p] = {"return": float(port.iloc[-1] - 1), "mdd": max_drawdown(port.to_numpy()),
+        hold[p] = {"return": float(port.iloc[-1] - 1), "mdd": max_drawdown(port.to_numpy()), "min": float(port.min()),
                    "per_coin": {mk: float(cv.iloc[-1] - 1) for mk, cv in zip(MAIN, curves)}}
         if p == "all":
-            hold["curve"] = [round(float(v), 4) for v in port.resample("1D").last().to_numpy()]
+            hold["curve"] = [round(float(v), 5) for v in port.resample("1D").last().to_numpy()]
+        if p == "oos":
+            daily = port.resample("1D").last()
+            hold["curve_oos"] = [round(float(v), 5) for v in daily.to_numpy()]
+            hold["curve_oos_dates"] = [ts.strftime("%Y-%m-%d") for ts in daily.index]
 
     # 5) 교육용: 무작위 진입 + 손절/익절 조합 → '승률은 설정으로 만들 수 있다'
     grid = []
