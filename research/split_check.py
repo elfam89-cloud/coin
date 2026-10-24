@@ -73,7 +73,8 @@ def btc_bucket(amounts, btc):
             units += a / (p * UPBIT)
             inv += a
         path.append({"month": me, "value": units * p, "invested": inv})
-    return units * float(btc.iloc[-1]), worst(pd.DataFrame(path).set_index("month"))
+    path = pd.DataFrame(path).set_index("month")
+    return units * float(btc.iloc[-1]), worst(path), path
 
 
 def div_bucket(amounts, ticker, fx):
@@ -92,7 +93,8 @@ def div_bucket(amounts, ticker, fx):
             shares += shares * v * (1 - TAX) / (p * buy_mult)
     last12 = dv[dv.index > px.index[-1] - pd.Timedelta("365D")].sum()
     fx_last = float(fx.iloc[-1])
-    return shares * float(px.iloc[-1]) * fx_last, shares * last12 * (1 - TAX) * fx_last / 12, worst(pd.DataFrame(path).set_index("month"))
+    path = pd.DataFrame(path).set_index("month")
+    return shares * float(px.iloc[-1]) * fx_last, shares * last12 * (1 - TAX) * fx_last / 12, worst(path), path
 
 
 def main():
@@ -101,11 +103,11 @@ def main():
     fx, _ = load_us("USDKRW")
     rows = []
     for name, live, div, coin in SPLITS:
-        coin_now, coin_worst = btc_bucket(w * coin, btc) if coin else (0.0, (0.0, "-"))
+        coin_now, coin_worst, _ = btc_bucket(w * coin, btc) if coin else (0.0, (0.0, "-"), None)
         r = {"name": name, "live": float(w.sum() * live), "coin_in": float(w.sum() * coin), "div_in": float(w.sum() * div),
              "coin_now": coin_now, "coin_worst": coin_worst, "bot_end": bot_end}
         for t in ("SCHD", "O"):
-            v, monthly, wst = div_bucket(w * div, t, fx) if div else (0.0, 0.0, (0.0, "-"))
+            v, monthly, wst, _ = div_bucket(w * div, t, fx) if div else (0.0, 0.0, (0.0, "-"), None)
             r[f"{t}_now"], r[f"{t}_monthly"], r[f"{t}_worst"] = v, monthly, wst
         rows.append(r)
     res = {"withdraw_total": float(w.sum()), "withdraw_first": float(w.iloc[0]), "withdraw_last": float(w.iloc[-1]),
