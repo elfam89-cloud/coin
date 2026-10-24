@@ -30,6 +30,9 @@
   .kr-table th:first-child, .kr-table td:first-child { text-align: left; white-space: normal; min-width: 12rem; }
   .kr-table tr.kr-hold td { background: var(--color-bg); font-style: italic; }
   .kr-table.kr-desc td:last-child, .kr-table.kr-desc th:last-child { text-align: left; white-space: normal; min-width: 18rem; }
+  #xv-checks td, #xv-checks th { text-align: left; }
+  #xv-checks td:last-child, #xv-checks th:last-child { min-width: 12rem; }
+  .kr-h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 0; }
   .kr-good { color: var(--color-ok); }
   .kr-bad { color: var(--color-bad); }
   .kr-chart { position: relative; min-height: 20rem; }
@@ -58,35 +61,94 @@
 <div class="kr">
   <header class="kr-head" id="top">
     <h1>코인 단타 검증 리포트</h1>
-    <p class="kr-lead">
-      30만원으로 최근 1년 동안 규칙대로 사고팔았다면, 가장 잘한 규칙도
-      <b data-source="summary" data-field="best_final_krw" data-row="0">—</b>
-      (<b data-source="summary" data-field="best_ret" data-row="0">—</b>)이 되었습니다.
-      그냥 들고만 있었다면 <b data-source="summary" data-field="hold_final_krw" data-row="0">—</b>
-      (<b data-source="summary" data-field="hold_ret" data-row="0">—</b>)입니다.
-    </p>
+    <p class="kr-lead" id="lead" data-source="xv_summary">—</p>
   </header>
 
   <section class="kr-tiles" id="hero" aria-label="한눈에 보기">
     <div class="kr-tile">
-      <span class="kr-lbl">최근 1년 가장 잘한 규칙</span>
-      <span class="kr-num" data-source="summary" data-field="best_final_krw" data-row="0">—</span>
-      <span class="kr-sub" data-source="summary" data-field="best_name" data-row="0">—</span>
+      <span class="kr-lbl">30만원으로 2018년부터 했다면</span>
+      <span class="kr-num" data-source="xv_summary" data-field="final_krw" data-where="rk=A|upbit">—</span>
+      <span class="kr-sub">크게 오르기 시작하면 따라 사기 · 비트코인·이더리움 · 업비트 수수료</span>
     </div>
     <div class="kr-tile">
-      <span class="kr-lbl">같은 1년, 그냥 들고 있었다면</span>
-      <span class="kr-num" data-source="summary" data-field="hold_final_krw" data-row="0">—</span>
-      <span class="kr-sub">비트코인·이더리움·리플·솔라나를 사서 아무것도 안 함</span>
+      <span class="kr-lbl">플러스였던 해</span>
+      <span class="kr-num"><span data-source="xv_summary" data-field="years_up" data-where="rk=A|upbit">—</span> / <span data-source="xv_summary" data-field="years_total" data-where="rk=A|upbit">—</span>년</span>
+      <span class="kr-sub">가장 나빴던 해 <span data-source="xv_summary" data-field="worst_year_label" data-where="rk=A|upbit">—</span>년 <span data-source="xv_summary" data-field="worst_year" data-where="rk=A|upbit">—</span></span>
     </div>
     <div class="kr-tile">
-      <span class="kr-lbl">실전에 써도 되는 규칙</span>
-      <span class="kr-num"><span data-source="summary" data-field="n_pass_upbit" data-row="0">—</span>개</span>
-      <span class="kr-sub">후보 <span data-source="summary" data-field="n_candidates" data-row="0">—</span>개 중, 업비트 수수료 기준</span>
+      <span class="kr-lbl">수수료 무료 거래소라면 · 짧은 급락 때 사기</span>
+      <span class="kr-num"><span data-source="xv_summary" data-field="years_up" data-where="rk=C|free">—</span> / <span data-source="xv_summary" data-field="years_total" data-where="rk=C|free">—</span>년 플러스</span>
+      <span class="kr-sub">승률 <span data-source="xv_summary" data-field="win_rate" data-where="rk=C|free">—</span> · 30만원 → <span data-source="xv_summary" data-field="final_krw" data-where="rk=C|free">—</span></span>
+    </div>
+    <div class="kr-tile">
+      <span class="kr-lbl">실전 판정</span>
+      <span class="kr-num">아직</span>
+      <span class="kr-sub">모두 과거 기준입니다. 앞으로의 시세로 모의 검증을 먼저 통과해야 합니다.</span>
     </div>
   </section>
 
+
+  <section class="kr-section" id="nine-years">
+    <h2>9년 동안 해마다 플러스였나 (비트코인·이더리움만)</h2>
+    <p class="kr-note">30만원을 비트코인과 이더리움에 15만원씩 나눠 넣고 2018년 1월부터 지금까지 규칙대로 사고팔았다고 계산했습니다. 리플·에이다는 옛날에 호가 단위가 커서 실제 체결 손해가 컸기 때문에 뺐습니다(아래 "현실 점검").</p>
+    <div class="kr-toggles" role="group" aria-label="수수료 선택">
+      <div class="kr-group">
+        <span>수수료</span>
+        <button type="button" class="kr-tg" data-k="xcost" data-v="upbit" aria-pressed="true">업비트</button>
+        <button type="button" class="kr-tg" data-k="xcost" data-v="free" aria-pressed="false">수수료 무료 거래소</button>
+      </div>
+    </div>
+    <div class="kr-grid" id="xv-cards" data-source="xv_summary"></div>
+    <div class="kr-card">
+      <h3 class="kr-h3">연도별 수익률</h3>
+      <div class="kr-legend" id="xv-years-legend"></div>
+      <div class="kr-chart kr-short dash-skeleton" id="xv-years" data-source="xv_years"></div>
+      <p class="kr-note">2026년은 1~10월입니다.</p>
+    </div>
+    <div class="kr-card">
+      <h3 class="kr-h3">30만원이 어떻게 변했나 (2018 ~ 지금)</h3>
+      <div class="kr-legend" id="xv-curve-legend"></div>
+      <div class="kr-chart dash-skeleton" id="xv-curve" data-source="xv_curve"></div>
+    </div>
+  </section>
+
+  <section class="kr-section" id="fair-test">
+    <h2>공정하게 채점했나</h2>
+    <p class="kr-note">"크게 오르기 시작하면 따라 사기(손절 -3%)"는 1단계가 끝난 뒤 결과를 보고 찾은 규칙입니다. 그래서 한 번도 보지 않은 2018년과 2019~2023년 데이터로 다시 시험했습니다. 채점 기준은 데이터를 받기 전에 정해서 GitHub에 저장해 두었습니다(research/PREREG_2019-2023.md).</p>
+    <div class="kr-tablewrap">
+      <table class="kr-table" id="xv-periods" data-source="xv_periods" data-row-key="rk">
+        <thead><tr><th data-field="period">기간</th><th data-field="kind">어떤 시험</th><th data-field="rule">규칙</th><th data-field="final_krw">30만원 →</th><th data-field="ret">누적 수익률</th><th data-field="win_rate">승률</th><th data-field="trades">거래</th><th data-field="coins">코인</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="kr-lead" id="xv-verdict" data-source="validation_checks">—</p>
+    <div class="kr-tablewrap">
+      <table class="kr-table kr-desc" id="xv-checks" data-source="validation_checks" data-row-key="i">
+        <thead><tr><th data-field="name">2019~2023 채점 기준 (변동성 돌파)</th><th data-field="result">결과</th><th data-field="value">값</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="kr-section" id="reality">
+    <h2>현실 점검: 호가 단위</h2>
+    <p class="kr-note">가격이 낮은 코인은 가격이 움직이는 최소 단위(호가 1칸)가 가격에 비해 커서, 사고팔 때마다 생각보다 많이 손해를 봅니다. 실제 데이터에서 달마다 호가 1칸을 재서, 사고팔 때마다 그만큼 불리하게 체결된다고 다시 계산했습니다(크게 오르기 시작하면 따라 사기, 2018~2026, 코인마다 7만 5천원).</p>
+    <div class="kr-tablewrap">
+      <table class="kr-table" id="xv-ticks" data-source="xv_ticks" data-row-key="rk">
+        <thead><tr><th data-field="coin">코인</th><th data-field="tick_pct">평균 체결 손해 (한쪽)</th><th data-field="base_krw">기본 가정일 때</th><th data-field="tick_krw">호가 손해 반영</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <p class="kr-note">비트코인·이더리움은 호가 1칸이 아주 작아 결과가 그대로입니다. 그래서 위 9년 성적은 이 두 코인만으로 계산했습니다.</p>
+  </section>
+
+  <section class="kr-section" id="stage1-title">
+    <h2>1단계 기록: 처음 시험한 규칙들 (최근 1년 중심)</h2>
+    <p class="kr-note">아래는 처음 실험한 후보 8개의 기록입니다. 이때는 비트코인·이더리움·리플·솔라나 4개 코인을 썼습니다.</p>
+  </section>
+
   <section class="kr-box" id="how">
-    <h2>이 리포트 읽는 법</h2>
+    <h2>1단계 표 읽는 법</h2>
     <ul class="kr-list">
       <li>30만원을 코인 4개에 7만 5천원씩 나눠 넣고, 각 코인에서 규칙대로 사고팔았다고 가정했습니다.</li>
       <li>사고팔 때마다 업비트 수수료 <b data-source="summary" data-field="fee" data-row="0">—</b>와 체결 손해 <b data-source="summary" data-field="slip" data-row="0">—</b>를 뺐습니다.</li>
@@ -174,7 +236,12 @@
 
   <section class="kr-box" id="next">
     <h2>그래서 다음은</h2>
-    <ul class="kr-list" id="next-list" data-source="summary"><li>—</li></ul>
+    <ul class="kr-list">
+      <li>아직 실제 돈은 넣지 않습니다. 과거 데이터는 이제 모두 한 번씩 봤기 때문에, 남은 공정한 시험은 앞으로의 시세뿐입니다.</li>
+      <li>두 규칙(크게 오르기 시작하면 따라 사기, 짧은 급락 때 사기)을 비트코인·이더리움으로 8주 이상 모의 매매합니다. 신호는 텔레그램으로 알려 드리고, 결과는 매주 이 리포트처럼 보여 드립니다.</li>
+      <li>거래소를 정합니다. 업비트라면 "크게 오르기 시작하면 따라 사기"가 중심이고, 수수료 무료 거래소라면 "짧은 급락 때 사기"도 후보가 됩니다.</li>
+      <li>2022년 같은 하락장에 대비해 한 달 손실 한도 같은 안전장치를 함께 시험합니다.</li>
+    </ul>
   </section>
 
   <section class="kr-box" id="terms">
@@ -200,7 +267,7 @@
   const man = (v) => `${loc.format(v % 10000 === 0 ? ',.0f' : ',.1f')(v / 10000)}만`;
   const hours = (h) => (na(h) ? '—' : Number(h) >= 48 ? `${(Number(h) / 24).toFixed(1)}일` : `${Number(h).toFixed(1)}시간`);
   const tone = (v) => (na(v) ? '' : Number(v) > 0 ? 'kr-good' : Number(v) < 0 ? 'kr-bad' : '');
-  const view = { period: 'recent', cost: 'upbit', month: 'c1' };
+  const view = { period: 'recent', cost: 'upbit', month: 'c1', xcost: 'upbit' };
   const PERIOD = { recent: '최근 1년', all: '3년 전체' };
   const COST = { upbit: '업비트 수수료', free: '수수료 무료 거래소' };
 
@@ -293,16 +360,6 @@
       const k = el.dataset.field, v = s.data[0][k];
       el.textContent = v === null || v === undefined ? '—' : fmt[k] ? fmt[k](v) : String(v);
     });
-    const nx = document.getElementById('next-list');
-    if (s.status !== 'ok' || !s.data.length) { nx.replaceChildren(); return; }
-    const pass = Number(s.data[0].n_pass_upbit);
-    const items = pass > 0
-      ? ['통과한 규칙으로 실제 돈 없이 8주 동안 실시간 모의 매매를 해 봅니다.', '모의 결과가 이 리포트와 비슷하면 20~30만원 소액 실전을 준비합니다.']
-      : ['지금 규칙 그대로 실제 돈을 넣으면 안 됩니다.',
-         '가장 덜 잃은 두 규칙(짧은 급락 때 사기, 크게 오르기 시작하면 따라 사기)을 실제 돈 없이 8주 동안 지켜봅니다. 신호가 나오면 텔레그램으로 알려 드리고, 가상으로 사고판 결과를 매주 이 리포트처럼 보여 드립니다.',
-         '그동안 수수료가 무료인 거래소도 비교합니다. 위에서 "수수료 무료 거래소"를 눌러 차이를 볼 수 있습니다.',
-         '8주 뒤 결과가 좋으면 20~30만원 소액 실전을 준비하고, 나쁘면 규칙을 다시 고릅니다.'];
-    nx.replaceChildren(...items.map((t) => { const li = document.createElement('li'); li.textContent = t; return li; }));
   }
 
   // ---------- 성적표 ----------
@@ -464,9 +521,161 @@
     }));
   }
 
+  // ---------- 9년 성적 / 공정한 채점 / 현실 점검 ----------
+  const RULE = { A: '크게 오르기 시작하면 따라 사기', C: '짧은 급락 때 사기' };
+  const RCOL = () => ({ A: dash.colors[1], C: dash.colors[0] });
+  const xsum = (rk) => { const d = dash.data('xv_summary'); return d.status === 'ok' ? d.data.find((r) => r.rk === rk) : null; };
+
+  function fillXv() {
+    const fmt = { final_krw: won, years_up: (v) => f.int(Number(v)), years_total: (v) => f.int(Number(v)), worst_year: (v) => f.spct1(Number(v)),
+                  worst_year_label: (v) => String(v), win_rate: (v) => f.pct1(Number(v)) };
+    document.querySelectorAll('[data-source="xv_summary"][data-where]').forEach((el) => {
+      const r = xsum(el.dataset.where.split('=')[1]);
+      const v = r ? r[el.dataset.field] : null;
+      el.textContent = v === null || v === undefined ? '—' : fmt[el.dataset.field] ? fmt[el.dataset.field](v) : String(v);
+    });
+    const lead = document.getElementById('lead');
+    const a = xsum('A|upbit'), c = xsum('C|free');
+    lead.textContent = a && c
+      ? `비트코인·이더리움으로 2018년부터 계산하면, "크게 오르기 시작하면 따라 사기"는 ${a.years_total}년 중 ${a.years_up}년이 플러스였고 30만원이 ${won(a.final_krw)}이 됐습니다. `
+        + `수수료가 없는 거래소라면 "짧은 급락 때 사기"가 ${c.years_total}년 중 ${c.years_up}년 플러스, 승률 ${f.pct1(Number(c.win_rate))}였습니다. 모두 과거 기준이라, 실제 돈을 넣기 전에 모의 검증이 필요합니다.`
+      : '—';
+  }
+
+  function drawXvCards() {
+    const box = document.getElementById('xv-cards');
+    box.replaceChildren(...['A', 'C'].map((rule) => {
+      const r = xsum(`${rule}|${view.xcost}`);
+      const c = document.createElement('div'); c.className = 'kr-card';
+      const n = document.createElement('span'); n.className = 'kr-lbl'; n.textContent = RULE[rule];
+      const b = document.createElement('span'); b.className = 'kr-sub'; b.textContent = '30만원 →';
+      const v = document.createElement('span'); v.className = `kr-big ${r ? tone(r.profit_krw) : ''}`; v.textContent = r ? won(r.final_krw) : '—';
+      const l1 = document.createElement('span'); l1.className = 'kr-sub';
+      l1.textContent = r ? `플러스인 해 ${r.years_up}/${r.years_total}년 · 가장 나쁜 해 ${r.worst_year_label}년 ${f.spct1(Number(r.worst_year))}` : '—';
+      const l2 = document.createElement('span'); l2.className = 'kr-sub';
+      l2.textContent = r ? `승률 ${f.pct1(Number(r.win_rate))} · 거래 ${f.int(Number(r.trades))}회 · 이익 본 달 ${r.months_up}/${r.months_total}개월` : '—';
+      const l3 = document.createElement('span'); l3.className = 'kr-sub';
+      l3.textContent = r ? `가장 나빴던 달 ${f.spct1(Number(r.worst_month))} · 고점에서 가장 많이 빠졌을 때 ${f.spct1(Number(r.mdd))}` : '—';
+      c.append(n, b, v, l1, l2, l3);
+      return c;
+    }));
+  }
+
+  function drawXvYears() {
+    const el = document.getElementById('xv-years');
+    const lg = document.getElementById('xv-years-legend');
+    if (!state(el, ['xv_years'])) { lg.replaceChildren(); return; }
+    const rows = dash.data('xv_years').data.filter((r) => r.cost === view.xcost).map((r) => ({ rule: r.rule, year: String(r.year), v: Number(r.ret) }));
+    const col = RCOL();
+    lg.replaceChildren(...['A', 'C'].map((k) => { const sp = document.createElement('span'); const sw = document.createElement('span'); sw.className = 'kr-sw'; sw.style.background = col[k]; sp.append(sw, document.createTextNode(RULE[k])); return sp; }));
+    const years = [...new Set(rows.map((r) => r.year))].sort();
+    const { svg, w, h } = frame(el, 240);
+    const ext = d3.extent(rows, (r) => r.v);
+    const y = d3.scaleLinear([Math.min(0, ext[0]), Math.max(0, ext[1])], [h - 26, 10]).nice();
+    const pf = loc.format('+.0%');
+    const labW = textWidth(svg, y.ticks(4).map(pf));
+    const x0 = d3.scaleBand(years, [labW + 12, w - 4]).padding(0.22);
+    const x1 = d3.scaleBand(['A', 'C'], [0, x0.bandwidth()]).padding(0.1);
+    svg.append('g').attr('transform', `translate(${labW + 8},0)`).call(d3.axisLeft(y).ticks(4).tickFormat(pf).tickSize(-(w - labW - 12))).call(axisStyle).call((g) => g.select('.domain').remove());
+    svg.append('line').attr('x1', labW + 8).attr('x2', w).attr('y1', y(0)).attr('y2', y(0)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-width', 1.5);
+    const tip = tooltip(el);
+    svg.append('g').selectAll('rect').data(rows).join('rect')
+      .attr('x', (r) => x0(r.year) + x1(r.rule)).attr('width', x1.bandwidth())
+      .attr('y', (r) => Math.min(y(0), y(r.v))).attr('height', (r) => Math.max(1, Math.abs(y(r.v) - y(0)))).attr('rx', 3)
+      .style('fill', (r) => col[r.rule]).attr('fill-opacity', (r) => (r.v >= 0 ? 1 : 0.45))
+      .on('mousemove', (ev, r) => tip.show(ev, `${r.year}년`, [{ text: `${RULE[r.rule]} ${f.spct1(r.v)}`, color: col[r.rule] }]))
+      .on('mouseleave', () => tip.hide());
+    const every = Math.ceil(years.length / Math.max(1, Math.floor((w - labW) / 44)));
+    svg.append('g').selectAll('text').data(years.filter((_, i) => i % every === 0)).join('text')
+      .attr('x', (yy) => x0(yy) + x0.bandwidth() / 2).attr('y', h - 8).attr('text-anchor', 'middle').text((yy) => yy);
+  }
+
+  function drawXvCurve() {
+    const el = document.getElementById('xv-curve');
+    const lg = document.getElementById('xv-curve-legend');
+    if (!state(el, ['xv_curve'])) { lg.replaceChildren(); return; }
+    const parse = d3.utcParse('%Y-%m-%d');
+    const pts = dash.data('xv_curve').data.filter((r) => r.cost === view.xcost).map((r) => ({ rule: r.rule, date: parse(r.date), krw: Number(r.krw) }));
+    const by = d3.group(pts, (r) => r.rule);
+    const col = RCOL();
+    lg.replaceChildren(...['A', 'C'].map((k) => { const sp = document.createElement('span'); const sw = document.createElement('span'); sw.className = 'kr-sw'; sw.style.background = col[k]; sp.append(sw, document.createTextNode(RULE[k])); return sp; }));
+    const { svg, w, h } = frame(el, 300);
+    const y = d3.scaleLinear([0, d3.max(pts, (r) => r.krw)], [h - 26, 10]).nice();
+    const labW = textWidth(svg, y.ticks(5).map(man));
+    const x = d3.scaleUtc(d3.extent(pts, (r) => r.date), [labW + 12, w - 10]);
+    svg.append('g').attr('transform', `translate(0,${h - 26})`).call(d3.axisBottom(x).ticks(Math.max(3, Math.floor(w / 80))).tickFormat(d3.utcFormat('%Y'))).call(axisStyle);
+    svg.append('g').attr('transform', `translate(${labW + 12},0)`).call(d3.axisLeft(y).ticks(5).tickFormat(man).tickSize(-(w - labW - 22))).call(axisStyle).call((g) => g.select('.domain').remove());
+    svg.append('line').attr('x1', labW + 12).attr('x2', w - 10).attr('y1', y(300000)).attr('y2', y(300000)).style('stroke', 'var(--cds-chart-reference)').attr('stroke-dasharray', '2 3');
+    svg.append('text').attr('x', labW + 16).attr('y', y(300000) - 5).attr('class', 'kr-strong').text('시작 30만원');
+    const line = d3.line().x((r) => x(r.date)).y((r) => y(r.krw));
+    for (const k of ['C', 'A']) {
+      if (!by.has(k)) continue;
+      svg.append('path').datum(by.get(k)).style('fill', 'none').style('stroke', col[k]).attr('stroke-width', 2.25)
+        .attr('stroke-linecap', 'round').attr('stroke-linejoin', 'round').attr('d', line);
+    }
+    const tip = tooltip(el);
+    const bis = d3.bisector((r) => r.date).center;
+    const ref = by.get('A') || [];
+    const rule = svg.append('line').attr('y1', 10).attr('y2', h - 26).style('stroke', 'var(--cds-chart-axis)').attr('opacity', 0);
+    svg.append('rect').attr('x', labW + 12).attr('y', 10).attr('width', w - labW - 22).attr('height', h - 36).style('fill', 'transparent')
+      .on('mousemove', (ev) => {
+        const [mx] = d3.pointer(ev);
+        const at = ref[bis(ref, x.invert(mx))];
+        if (!at) return;
+        rule.attr('x1', x(at.date)).attr('x2', x(at.date)).attr('opacity', 1);
+        const cc = (by.get('C') || [])[bis(by.get('C') || [], at.date)];
+        tip.show(ev, d3.utcFormat('%Y-%m-%d')(at.date), [{ text: `${RULE.A}: ${won(at.krw)}`, color: col.A }, ...(cc ? [{ text: `${RULE.C}: ${won(cc.krw)}`, color: col.C }] : [])]);
+      })
+      .on('mouseleave', () => { tip.hide(); rule.attr('opacity', 0); });
+  }
+
+  function drawFairTest() {
+    const tb = document.querySelector('#xv-periods tbody');
+    const d = dash.data('xv_periods');
+    tb.replaceChildren();
+    if (d.status === 'ok') {
+      const rows = [...d.data].sort((a, b) => Number(a.order) - Number(b.order) || String(a.rule).localeCompare(String(b.rule)));
+      for (const r of rows) {
+        const tr = document.createElement('tr'); tr.dataset.key = r.rk;
+        const cells = [[r.period], [r.kind], [RULE[r.rule] || r.rule], [won(r.final_krw), tone(r.ret)], [f.spct1(Number(r.ret)), tone(r.ret)],
+          [na(r.win_rate) ? '—' : f.pct1(Number(r.win_rate))], [f.int(Number(r.trades))], [r.coins]];
+        for (const [t, cls] of cells) { const td = document.createElement('td'); td.textContent = t; if (cls) td.className = cls; tr.appendChild(td); }
+        tb.appendChild(tr);
+      }
+    }
+    const ck = dash.data('validation_checks');
+    const verdict = document.getElementById('xv-verdict');
+    const tc = document.querySelector('#xv-checks tbody');
+    tc.replaceChildren();
+    if (ck.status === 'ok' && ck.data.length) {
+      const n = ck.data.filter((r) => r.result === '통과').length;
+      verdict.textContent = n === ck.data.length
+        ? `2019~2023 채점 기준 ${ck.data.length}개를 모두 통과했습니다.`
+        : `2019~2023 채점 기준 ${ck.data.length}개 중 ${n}개를 통과했습니다. 남은 1개는 "꾸준함"입니다. 2022년처럼 오르내리며 빠지는 하락장에서 손실이 커지는 약점이 있습니다.`;
+      for (const r of ck.data) {
+        const tr = document.createElement('tr'); tr.dataset.key = String(r.i);
+        const a = document.createElement('td'); a.textContent = r.name;
+        const b = document.createElement('td'); b.textContent = r.result; b.className = r.result === '통과' ? 'kr-good' : 'kr-bad';
+        const c = document.createElement('td'); c.textContent = r.value;
+        tr.append(a, b, c); tc.appendChild(tr);
+      }
+    } else verdict.textContent = '—';
+    const tt = document.querySelector('#xv-ticks tbody');
+    const tk = dash.data('xv_ticks');
+    tt.replaceChildren();
+    if (tk.status === 'ok') {
+      for (const r of tk.data.filter((x) => x.rule === 'A')) {
+        const tr = document.createElement('tr'); tr.dataset.key = r.rk;
+        const cells = [[r.coin], [loc.format('.3%')(Number(r.tick_pct))], [won(r.base_krw), tone(Number(r.base_krw) - Number(r.start_krw))], [won(r.tick_krw), tone(Number(r.tick_krw) - Number(r.start_krw))]];
+        for (const [t, cls] of cells) { const td = document.createElement('td'); td.textContent = t; if (cls) td.className = cls; tr.appendChild(td); }
+        tt.appendChild(tr);
+      }
+    }
+  }
+
   function drawAll() {
     document.querySelectorAll('.kr-tg').forEach((b) => b.setAttribute('aria-pressed', String(view[b.dataset.k] === b.dataset.v)));
-    fillSummary(); drawBoard(); drawGrowth(); drawMonths(); drawWinrate(); drawRules();
+    fillSummary(); fillXv(); drawXvCards(); drawXvYears(); drawXvCurve(); drawFairTest(); drawBoard(); drawGrowth(); drawMonths(); drawWinrate(); drawRules();
   }
 
   document.querySelectorAll('.kr-tg').forEach((b) => b.addEventListener('click', () => { view[b.dataset.k] = b.dataset.v; drawAll(); }));
