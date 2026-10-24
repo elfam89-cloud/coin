@@ -12,6 +12,7 @@
 | [`results/yearly_summary.md`](results/yearly_summary.md) | 2018~2026 연도별 성적 (비트코인·이더리움) |
 | [`results/validation_summary.md`](results/validation_summary.md) | 처음 보는 2019~2023년 채점 결과 (사전 등록 기준) |
 | [`research/PREREG_2019-2023.md`](research/PREREG_2019-2023.md) | 데이터를 보기 전에 정한 채점 기준 |
+| [`results/us_dividend.md`](results/us_dividend.md) | (번외) 미국 배당주 '단타 + 배당락 전날 풀매수' 아이디어 점검 |
 | [`results/summary.md`](results/summary.md) | 1단계 실험 결과 요약표 |
 
 ## 폴더 구조
@@ -30,6 +31,8 @@ research/               1단계: 과거 데이터로 전략 검증하는 코드
   yearly_check.py       연도별 성적표 → results/yearly_summary.md
   merge_data.py         여러 기간 데이터를 이어 붙이기
   export_validation.py  추가 검증 결과를 리포트용 데이터로
+  fetch_us.py           (번외) 미국 주식 일봉·1시간봉·배당 내려받기 (Yahoo)
+  us_dividend_check.py  (번외) 미국 배당주 아이디어 점검 → results/us_dividend.md
   test_engine.py        계산기가 맞게 동작하는지 확인하는 테스트
 results/                실험 결과 (요약표, 원자료 JSON)
   report/               리포트 페이지(index.html)와 그래프용 데이터
