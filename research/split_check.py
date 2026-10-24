@@ -77,12 +77,14 @@ def btc_bucket(amounts, btc):
     return units * float(btc.iloc[-1]), worst(path), path
 
 
-def div_bucket(amounts, ticker, fx):
+def div_bucket(amounts, ticker, fx, reinvest=True):
+    """reinvest=False면 배당을 다시 사지 않고 현금(생활비)으로 받는다.
+    반환: 지금 가치, 지금 매달 나오는 배당, 가장 나빴던 때, 달별 경로, 받은 배당(원, 세후)."""
     px, dv = load_us(ticker)
     buy_mult = (1 + US_SLIP) * (1 + US_FEE)
     events = [(me, 1, a) for me, a in amounts.items() if a > 0]                                   # 매달 말 매수
     events += [(d, 0, amt) for d, amt in dv.items() if MONTHS[0] - pd.Timedelta("31D") < d <= px.index[-1]]  # 배당락일 (같은 날이면 먼저)
-    shares, inv, path = 0.0, 0.0, []
+    shares, inv, path, divs = 0.0, 0.0, [], {}
     for d, kind, v in sorted(events):
         p = float(px.asof(d))
         if kind == 1:
@@ -90,11 +92,14 @@ def div_bucket(amounts, ticker, fx):
             inv += v
             path.append({"month": d, "value": shares * p * float(fx.asof(d)), "invested": inv})
         else:
-            shares += shares * v * (1 - TAX) / (p * buy_mult)
+            divs[d] = shares * v * (1 - TAX) * float(fx.asof(d))
+            if reinvest:
+                shares += shares * v * (1 - TAX) / (p * buy_mult)
     last12 = dv[dv.index > px.index[-1] - pd.Timedelta("365D")].sum()
     fx_last = float(fx.iloc[-1])
     path = pd.DataFrame(path).set_index("month")
-    return shares * float(px.iloc[-1]) * fx_last, shares * last12 * (1 - TAX) * fx_last / 12, worst(path), path
+    return (shares * float(px.iloc[-1]) * fx_last, shares * last12 * (1 - TAX) * fx_last / 12, worst(path), path,
+            pd.Series(divs, dtype=float))
 
 
 def main():
@@ -107,12 +112,22 @@ def main():
         r = {"name": name, "live": float(w.sum() * live), "coin_in": float(w.sum() * coin), "div_in": float(w.sum() * div),
              "coin_now": coin_now, "coin_worst": coin_worst, "bot_end": bot_end}
         for t in ("SCHD", "O"):
-            v, monthly, wst, _ = div_bucket(w * div, t, fx) if div else (0.0, 0.0, (0.0, "-"), None)
+            v, monthly, wst, _, _ = div_bucket(w * div, t, fx) if div else (0.0, 0.0, (0.0, "-"), None, None)
             r[f"{t}_now"], r[f"{t}_monthly"], r[f"{t}_worst"] = v, monthly, wst
         rows.append(r)
     res = {"withdraw_total": float(w.sum()), "withdraw_first": float(w.iloc[0]), "withdraw_last": float(w.iloc[-1]),
            "months": len(w), "bot_end": bot_end, "fx_first": float(fx.asof(MONTHS[0])), "fx_last": float(fx.iloc[-1]),
            "btc_first": float(btc.asof(MONTHS[0] + pd.Timedelta(hours=23, minutes=55))), "btc_last": float(btc.iloc[-1]), "rows": rows}
+    # 배당 자세히: 두 번째 비율(생활비 50 · 배당주 25 · 비트코인 25), SCHD — 다시 사기 vs 생활비로 쓰기
+    div1 = SPLITS[1][2]
+    d_re = div_bucket(w * div1, "SCHD", fx)[4]
+    v_cash, _, _, _, d_cash = div_bucket(w * div1, "SCHD", fx, reinvest=False)
+    px, dv = load_us("SCHD")
+    dps, yend = dv.groupby(dv.index.year).sum(), px.groupby(px.index.year).last()
+    res["div_detail"] = {"total": float(d_re.sum()), "by_year": {int(k): float(v) for k, v in d_re.groupby(d_re.index.year).sum().items()},
+                         "cash_total": float(d_cash.sum()), "value_cash": v_cash,
+                         "dps": {int(k): float(v) for k, v in dps.items() if k >= 2018},
+                         "px_2021": float(yend[2021]), "px_2022": float(yend[2022])}
     (RES / "split_plan.json").write_text(json.dumps(res, ensure_ascii=False, indent=1))
     write_md(res)
 
@@ -138,7 +153,15 @@ def write_md(res):
     r = res["rows"][1]
     L += ["", "중간에 가장 나빴던 때 (넣은 돈 대비 평가액, 달말 기준 — 비율은 나누는 비율과 상관없이 같음):",
           f"- 비트코인 보유분: {r['coin_worst'][0] * 100:+.0f}% ({r['coin_worst'][1]})",
-          f"- 배당주 SCHD: {r['SCHD_worst'][0] * 100:+.0f}% ({r['SCHD_worst'][1]}) / O: {r['O_worst'][0] * 100:+.0f}% ({r['O_worst'][1]})",
+          f"- 배당주 SCHD: {r['SCHD_worst'][0] * 100:+.0f}% ({r['SCHD_worst'][1]}) / O: {r['O_worst'][0] * 100:+.0f}% ({r['O_worst'][1]})"]
+    dd = res["div_detail"]
+    L += ["", f"## 배당은 어떻게 계산했나 ({r['name']}, SCHD)", "",
+          "- 배당은 미국 세금 15%를 떼고 같은 주식을 다시 샀음 → 위 표의 '지금' 금액에 이미 들어 있음",
+          f"- 9년 동안 받은 배당 합계 {dd['total']:,.0f}원 (세후). 해마다: " + " · ".join(f"{y}년 {v:,.0f}원" for y, v in dd["by_year"].items()),
+          f"- 배당을 다시 사지 않고 생활비로 쓰면: 생활비 {man(r['live'])} → {man(r['live'] + dd['cash_total'])}, "
+          f"배당주 {man(r['SCHD_now'])} → {man(dd['value_cash'])}",
+          "- SCHD 1주당 배당(달러, 분할 반영): " + " · ".join(f"{y}년 {v:.2f}" for y, v in dd["dps"].items() if y < 2026)
+          + f". 2022년 주가가 {dd['px_2022'] / dd['px_2021'] * 100 - 100:+.0f}%일 때 배당은 {dd['dps'][2022] / dd['dps'][2021] * 100 - 100:+.0f}%",
           "", "100만원이 아니라 1,000만원으로 시작하면 모든 금액이 10배입니다."]
     (RES / "split_plan.md").write_text("\n".join(L) + "\n")
     print("\n".join(L))
